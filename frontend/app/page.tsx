@@ -73,7 +73,7 @@ export default function LeafLiteStudioPage() {
 
   // Compressor options
   const [quality, setQuality] = useState<number>(80);
-  const [compressConvertToWebp, setCompressConvertToWebp] = useState<boolean>(true);
+  const [compressConvertToWebp, setCompressConvertToWebp] = useState<boolean>(false);
 
   // Processing state
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -293,11 +293,6 @@ export default function LeafLiteStudioPage() {
     setProgressText(`Starting ${activeTab === 'compressor' ? 'compression' : 'conversion'}...`);
 
     const results: ProcessedFileItem[] = [];
-
-    const effectiveTarget = activeTab === 'compressor'
-      ? (compressConvertToWebp ? 'WEBP' : targetFormat)
-      : targetFormat;
-
     const effectiveQuality = activeTab === 'compressor' ? quality : 85;
 
     try {
@@ -306,6 +301,20 @@ export default function LeafLiteStudioPage() {
         const stepNum = i + 1;
         setProgressText(`Processing image ${stepNum} of ${files.length}: ${item.file.name}`);
         setProgressPercent(Math.round((i / files.length) * 90) + 5);
+
+        let effectiveTarget: OutputFormat = targetFormat;
+        if (activeTab === 'compressor') {
+          if (compressConvertToWebp) {
+            effectiveTarget = 'WEBP';
+          } else {
+            const detected = item.detectedFormat.toUpperCase();
+            effectiveTarget = ['JPG', 'JPEG'].includes(detected)
+              ? 'JPG'
+              : ['PNG', 'WEBP', 'AVIF', 'SVG'].includes(detected)
+              ? (detected as OutputFormat)
+              : 'JPG';
+          }
+        }
 
         let processedItem: ProcessedFileItem | null = null;
 
@@ -515,7 +524,7 @@ export default function LeafLiteStudioPage() {
 
           <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2">
             {activeTab === 'compressor' ? (
-              <>Compress Images & Convert to <span className="text-emerald-600">WebP</span></>
+              <>Compress <span className="text-emerald-600">Images</span></>
             ) : activeTab === 'converter' ? (
               <>Convert Image <span className="text-emerald-600">Formats</span></>
             ) : activeTab === 'resize' ? (
@@ -822,7 +831,7 @@ export default function LeafLiteStudioPage() {
                   )}
                 </div>
 
-                {/* Compressor Specific Controls */}
+                {/* Compressor Quality Controls */}
                 {activeTab === 'compressor' && files.length > 0 && (
                   <div className="w-full max-w-lg mt-4 mb-2 p-4 bg-emerald-50/40 border border-emerald-100 rounded-xl flex flex-col gap-3">
                     <div className="flex items-center justify-between">
@@ -850,53 +859,55 @@ export default function LeafLiteStudioPage() {
                         High Quality (92%)
                       </button>
                     </div>
-
-                    {/* Auto Convert to WebP toggle */}
-                    <label className="flex items-center gap-2 pt-2 border-t border-emerald-100 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={compressConvertToWebp}
-                        onChange={(e) => setCompressConvertToWebp(e.target.checked)}
-                        className="w-4 h-4 rounded text-emerald-600 accent-emerald-600 cursor-pointer"
-                      />
-                      <span className="text-xs font-semibold text-slate-700">
-                        Also convert to WebP for maximum compression (-70% to -85% size reduction)
-                      </span>
-                    </label>
                   </div>
                 )}
 
-                {/* Bottom Format Selector Pills & Action Button */}
+                {/* Bottom Controls Bar & Action Button */}
                 <div className="w-full max-w-lg mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-center gap-4">
-                  {/* Format Pills: WEBP, JPG, PNG, AVIF, SVG */}
-                  <div className="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 shadow-2xs">
-                    {SUPPORTED_OUTPUTS.map((fmt) => {
-                      const isSourceFormat = currentFile && currentFile.detectedFormat === fmt;
-                      const isSelected = (activeTab === 'compressor' && compressConvertToWebp ? fmt === 'WEBP' : targetFormat === fmt) && !isSourceFormat;
+                  {activeTab === 'compressor' ? (
+                    /* WebP Toggle Switch for Compressor (No format pills) */
+                    <label className="inline-flex items-center gap-2.5 px-4 py-2 bg-slate-50 hover:bg-slate-100/90 border border-slate-200 rounded-xl cursor-pointer select-none transition-colors shadow-2xs">
+                      <div className="relative inline-flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={compressConvertToWebp}
+                          onChange={(e) => setCompressConvertToWebp(e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                      </div>
+                      <span className="text-xs sm:text-sm font-bold text-slate-700">
+                        WebP
+                      </span>
+                    </label>
+                  ) : (
+                    /* Format Pills: WEBP, JPG, PNG, AVIF, SVG (Only in Converter tab) */
+                    <div className="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 shadow-2xs">
+                      {SUPPORTED_OUTPUTS.map((fmt) => {
+                        const isSourceFormat = currentFile && currentFile.detectedFormat === fmt;
+                        const isSelected = targetFormat === fmt && !isSourceFormat;
 
-                      return (
-                        <button
-                          key={fmt}
-                          type="button"
-                          disabled={isSourceFormat || isProcessing}
-                          onClick={() => {
-                            if (activeTab === 'compressor') setCompressConvertToWebp(fmt === 'WEBP');
-                            setTargetFormat(fmt);
-                          }}
-                          title={isSourceFormat ? `Image is already ${fmt}` : `Convert to ${fmt}`}
-                          className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-md transition-all ${
-                            isSourceFormat
-                              ? 'text-slate-300 bg-transparent cursor-not-allowed line-through'
-                              : isSelected
-                              ? 'bg-slate-800 text-white shadow-xs'
-                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-                          }`}
-                        >
-                          {fmt}
-                        </button>
-                      );
-                    })}
-                  </div>
+                        return (
+                          <button
+                            key={fmt}
+                            type="button"
+                            disabled={isSourceFormat || isProcessing}
+                            onClick={() => setTargetFormat(fmt)}
+                            title={isSourceFormat ? `Image is already ${fmt}` : `Convert to ${fmt}`}
+                            className={`px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-md transition-all ${
+                              isSourceFormat
+                                ? 'text-slate-300 bg-transparent cursor-not-allowed line-through'
+                                : isSelected
+                                ? 'bg-slate-800 text-white shadow-xs'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                            }`}
+                          >
+                            {fmt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   {/* CONVERT / COMPRESS Action Button */}
                   <button
