@@ -865,21 +865,34 @@ export default function LeafLiteStudioPage() {
                 {/* Bottom Controls Bar & Action Button */}
                 <div className="w-full max-w-lg mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-center gap-4">
                   {activeTab === 'compressor' ? (
-                    /* WebP Toggle Switch for Compressor (No format pills) */
-                    <label className="inline-flex items-center gap-2.5 px-4 py-2 bg-slate-50 hover:bg-slate-100/90 border border-slate-200 rounded-xl cursor-pointer select-none transition-colors shadow-2xs">
-                      <div className="relative inline-flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={compressConvertToWebp}
-                          onChange={(e) => setCompressConvertToWebp(e.target.checked)}
-                          className="sr-only peer"
+                    /* WebP Toggle Button for Compressor (No format pills) */
+                    <button
+                      type="button"
+                      onClick={() => setCompressConvertToWebp((prev) => !prev)}
+                      className={`inline-flex items-center gap-3 px-4 py-2 rounded-xl border text-xs sm:text-sm font-bold transition-all shadow-2xs cursor-pointer select-none ${
+                        compressConvertToWebp
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                          : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-600'
+                      }`}
+                    >
+                      <div
+                        className={`w-9 h-5 rounded-full transition-colors relative flex items-center p-0.5 ${
+                          compressConvertToWebp ? 'bg-emerald-600' : 'bg-slate-300'
+                        }`}
+                      >
+                        <div
+                          className={`w-4 h-4 rounded-full bg-white shadow-xs transition-transform duration-200 transform ${
+                            compressConvertToWebp ? 'translate-x-4' : 'translate-x-0'
+                          }`}
                         />
-                        <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                       </div>
-                      <span className="text-xs sm:text-sm font-bold text-slate-700">
-                        WebP
-                      </span>
-                    </label>
+                      <div className="flex flex-col text-left">
+                        <span className="leading-tight">Convert to WebP</span>
+                        <span className="text-[10px] font-normal text-slate-500">
+                          {compressConvertToWebp ? 'ON (Max compression)' : 'OFF (Keep original format)'}
+                        </span>
+                      </div>
+                    </button>
                   ) : (
                     /* Format Pills: WEBP, JPG, PNG, AVIF, SVG (Only in Converter tab) */
                     <div className="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 shadow-2xs">
