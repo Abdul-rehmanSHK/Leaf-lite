@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #fafbfc;
+    color: #0f172a;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Custom dashed border marching effect on active drag */
+.border-dash-animated {
+  background-image: repeating-linear-gradient(0deg, #10b981, #10b981 12px, transparent 12px, transparent 24px),
+                    repeating-linear-gradient(90deg, #10b981, #10b981 12px, transparent 12px, transparent 24px),
+                    repeating-linear-gradient(180deg, #10b981, #10b981 12px, transparent 12px, transparent 24px),
+                    repeating-linear-gradient(270deg, #10b981, #10b981 12px, transparent 12px, transparent 24px);
+  background-size: 2px 100%, 100% 2px, 2px 100%, 100% 2px;
+  background-position: 0 0, 0 0, 100% 0, 0 100%;
+  background-repeat: no-repeat;
+  animation: borderDance 1.2s infinite linear;
+}
+
+@keyframes borderDance {
+  0% {
+    background-position: 0 0, 0 0, 100% 0, 0 100%;
+  }
+  100% {
+    background-position: 0 -24px, 24px 0, 100% 24px, -24px 100%;
+  }
+}
+
+.checkerboard-bg {
+  background-color: #ffffff;
+  background-image: 
+    linear-gradient(45deg, #e2e8f0 25%, transparent 25%),
+    linear-gradient(-45deg, #e2e8f0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e2e8f0 75%),
+    linear-gradient(-45deg, transparent 75%, #e2e8f0 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+}
+

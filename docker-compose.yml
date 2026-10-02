@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # In-memory broker & result backend
+  redis:
+    image: redis:7-alpine
+    container_name: leaflite_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # FastAPI REST Gateway
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: leaflite_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - LEAFLITE_STORAGE_DIR=/tmp/leaflite_uploads
+      - ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+    volumes:
+      - shared_uploads:/tmp/leaflite_uploads
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # Celery Concurrency Worker + Beat Ephemeral GC Scheduler
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: leaflite_worker
+    command: celery -A celery_config.celery_app worker --loglevel=info --concurrency=4 -B
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - LEAFLITE_STORAGE_DIR=/tmp/leaflite_uploads
+    volumes:
+      - shared_uploads:/tmp/leaflite_uploads
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+volumes:
+  shared_uploads:

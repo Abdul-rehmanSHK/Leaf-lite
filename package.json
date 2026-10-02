@@ -1,0 +1,10 @@
+{
+  "name": "leaflite-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "frontend": "npm --prefix frontend run dev",
+    "backend": "powershell -Command \"Set-Location backend; python -m uvicorn main:app --reload --port 8000\""
+  }
+}
