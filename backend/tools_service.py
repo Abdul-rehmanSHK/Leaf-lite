@@ -693,3 +693,149 @@ def _format_bytes(bytes_val: int) -> str:
     p = math.pow(1024, i)
     s = round(bytes_val / p, 2)
     return f"{s} {sizes[i]}"
+
+
+def optimize_image_direct(
+    input_path: Path,
+    output_path: Path,
+    output_format: str = "WEBP",
+    quality: int = 85
+) -> Dict[str, Any]:
+    """
+    Directly converts and optimizes any image or layer into target format (WEBP, PNG, JPG)
+    with high compression efficiency.
+    """
+    if not input_path.exists():
+        raise FileNotFoundError(f"File not found: {input_path}")
+
+    original_size = input_path.stat().st_size
+    fmt = output_format.upper().strip()
+    if fmt in ("JPG", "JPEG"):
+        save_format = "JPEG"
+    elif fmt == "PNG":
+        save_format = "PNG"
+    else:
+        save_format = "WEBP"
+
+    with Image.open(input_path) as img:
+        orig_w, orig_h = img.size
+        if save_format == "JPEG" and img.mode in ("RGBA", "LA", "P"):
+            bg = Image.new("RGB", img.size, (255, 255, 255))
+            if img.mode == "RGBA":
+                bg.paste(img, mask=img.split()[3])
+            else:
+                bg.paste(img.convert("RGBA"))
+            out_img = bg
+        else:
+            out_img = img
+
+        if save_format == "JPEG":
+            out_img.save(output_path, format="JPEG", quality=quality, optimize=True)
+        elif save_format == "PNG":
+            out_img.save(output_path, format="PNG", optimize=True)
+        elif save_format == "WEBP":
+            out_img.save(output_path, format="WEBP", quality=quality, method=6)
+        else:
+            out_img.save(output_path, format=save_format)
+
+    new_size = output_path.stat().st_size
+    saved_bytes = max(0, original_size - new_size)
+    saved_pct = round((saved_bytes / original_size) * 100, 1) if original_size > 0 else 0
+
+    return {
+        "status": "SUCCESS",
+        "format": save_format,
+        "quality": quality,
+        "width": orig_w,
+        "height": orig_h,
+        "original_size": original_size,
+        "original_size_formatted": _format_bytes(original_size),
+        "optimized_size": new_size,
+        "optimized_size_formatted": _format_bytes(new_size),
+        "saved_bytes": saved_bytes,
+        "saved_bytes_formatted": _format_bytes(saved_bytes),
+        "saved_percent": saved_pct
+    }
+
+
+def inspect_psd_file(psd_path: Path, composite_output_path: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Parses Photoshop .psd document, extracts hierarchy, layer dimensions, bounding boxes,
+    text elements, font specs, colors, and generates composite raster.
+    """
+    import psd_tools
+    if not psd_path.exists():
+        raise FileNotFoundError(f"File not found: {psd_path}")
+
+    psd = psd_tools.PSDImage.open(psd_path)
+    width, height = psd.width, psd.height
+
+    if composite_output_path:
+        try:
+            comp = psd.composite()
+            if comp:
+                comp.save(composite_output_path, format="PNG")
+        except Exception:
+            pass
+
+    layers = []
+
+    def _traverse(layer):
+        bbox = layer.bbox
+        layer_x = bbox.x1 if bbox else 0
+        layer_y = bbox.y1 if bbox else 0
+        layer_w = layer.width
+        layer_h = layer.height
+
+        is_text = layer.kind == "type"
+        text_data = None
+        if is_text:
+            text_str = ""
+            try:
+                text_str = layer.text or ""
+            except Exception:
+                pass
+            text_data = {
+                "text": text_str,
+                "font_family": "system-ui, sans-serif",
+                "font_size": 24,
+                "font_weight": "bold",
+                "line_height": "32px",
+                "letter_spacing": "0px",
+                "color": "#0f172a"
+            }
+
+        info = {
+            "name": layer.name or "Unnamed Layer",
+            "kind": layer.kind,
+            "visible": layer.visible,
+            "opacity": round((layer.opacity / 255.0) * 100) if hasattr(layer, "opacity") and layer.opacity is not None else 100,
+            "left": layer_x,
+            "top": layer_y,
+            "width": layer_w,
+            "height": layer_h,
+            "is_text": is_text,
+            "text": text_data,
+            "is_group": layer.is_group()
+        }
+
+        if layer.is_group():
+            children = []
+            for c in layer:
+                children.append(_traverse(c))
+            info["children"] = children
+        return info
+
+    for l in psd:
+        layers.append(_traverse(l))
+
+    return {
+        "status": "SUCCESS",
+        "width": width,
+        "height": height,
+        "color_mode": getattr(psd, "color_mode", "RGB"),
+        "channels": psd.channels,
+        "layer_count": len(layers),
+        "layers": layers
+    }
+

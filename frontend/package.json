@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@types/jszip": "^3.4.0",
+    "ag-psd": "^31.0.2",
     "clsx": "^2.1.0",
     "jszip": "^3.10.2",
     "lucide-react": "^0.359.0",

@@ -24,17 +24,19 @@ import {
   Maximize2,
   FileText,
   Gauge,
+  FileCode,
   X
 } from 'lucide-react';
 
 import { ResizeTool } from '../components/ResizeTool';
+import { PsdTool } from '../components/PsdTool';
 import { KbReducerTool } from '../components/KbReducerTool';
 import { PdfMergerTool } from '../components/PdfMergerTool';
 import { QualityCheckerTool } from '../components/QualityCheckerTool';
 import { DimensionsCheckerTool } from '../components/DimensionsCheckerTool';
 import { ExifTool } from '../components/ExifTool';
 
-type MainTab = 'compressor' | 'converter' | 'resize' | 'more_tools';
+type MainTab = 'compressor' | 'converter' | 'resize' | 'psd_studio' | 'more_tools';
 type ExtraTool = 'kb_reducer' | 'pdf_merger' | 'quality_checker' | 'dimensions_checker' | 'exif_tool';
 type OutputFormat = 'WEBP' | 'JPG' | 'PNG' | 'AVIF' | 'SVG';
 
@@ -63,7 +65,7 @@ const SUPPORTED_OUTPUTS: OutputFormat[] = ['WEBP', 'JPG', 'PNG', 'AVIF', 'SVG'];
 
 export default function LeafLiteStudioPage() {
   const [activeTab, setActiveTab] = useState<MainTab>('compressor');
-  const [previousMainTab, setPreviousMainTab] = useState<'compressor' | 'converter' | 'resize'>('compressor');
+  const [previousMainTab, setPreviousMainTab] = useState<MainTab>('compressor');
   const [selectedExtraTool, setSelectedExtraTool] = useState<ExtraTool>('kb_reducer');
 
   // File management (up to 10 images)
@@ -446,9 +448,11 @@ export default function LeafLiteStudioPage() {
     }
   };
 
-  const switchMainTab = (tab: 'compressor' | 'converter' | 'resize') => {
+  const switchMainTab = (tab: MainTab) => {
     setActiveTab(tab);
-    setPreviousMainTab(tab);
+    if (tab !== 'more_tools') {
+      setPreviousMainTab(tab);
+    }
     setErrorMessage(null);
   };
 
@@ -473,19 +477,21 @@ export default function LeafLiteStudioPage() {
     ? Math.round(((totalOriginalBytes - totalOptimizedBytes) / totalOriginalBytes) * 100)
     : 0;
 
+  const isStudioMode = activeTab === 'resize' || activeTab === 'psd_studio';
+
   return (
-    <div className="min-h-screen bg-[#fafbfc] text-slate-800 flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
+    <div className={`min-h-screen ${isStudioMode ? 'h-screen overflow-hidden bg-[#0b0f19]' : 'bg-[#fafbfc]'} text-slate-800 flex flex-col font-sans selection:bg-emerald-500 selection:text-white`}>
       {/* Top Navbar with LeafLite Branding */}
-      <header className="w-full border-b border-emerald-100/80 bg-white/95 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <header className={`w-full border-b ${isStudioMode ? 'border-slate-800 bg-[#0d131f] text-white' : 'border-emerald-100/80 bg-white/95'} backdrop-blur-md sticky top-0 z-40 shrink-0`}>
+        <div className={`${isStudioMode ? 'w-full px-4 sm:px-6' : 'max-w-5xl mx-auto px-4 sm:px-6'} h-14 sm:h-16 flex items-center justify-between`}>
           {/* LeafLite Brand Logo */}
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center text-white shadow-md shadow-emerald-600/20">
               <span className="text-lg">🍃</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-extrabold tracking-tight text-slate-900">
-                Leaf<span className="text-emerald-600">Lite</span>
+              <span className={`text-xl font-extrabold tracking-tight ${isStudioMode ? 'text-white' : 'text-slate-900'}`}>
+                Leaf<span className="text-emerald-500">Lite</span>
               </span>
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100/80 text-emerald-800 border border-emerald-200">
                 Studio
@@ -495,7 +501,7 @@ export default function LeafLiteStudioPage() {
 
           {/* Engine indicator & Docs link */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800">
+            <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-800 text-emerald-400">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>Engine Active (:8000)</span>
             </div>
@@ -504,7 +510,7 @@ export default function LeafLiteStudioPage() {
               href={`${BACKEND_URL}/docs`}
               target="_blank"
               rel="noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 transition-colors border border-transparent hover:border-emerald-200"
+              className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${isStudioMode ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50'} transition-colors border border-transparent hover:border-emerald-200`}
             >
               <span>API Docs</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -514,7 +520,74 @@ export default function LeafLiteStudioPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 sm:py-10 flex flex-col items-center">
+      {isStudioMode ? (
+        <main className="flex-1 w-full flex flex-col overflow-hidden h-[calc(100vh-56px)] sm:h-[calc(100vh-64px)] min-h-0 bg-[#0b0f19]">
+          {/* Top Primary Tabs Bar in Studio Mode */}
+          <div className="flex items-center justify-between border-b border-slate-800 bg-[#0e1626] px-3 sm:px-6 py-1.5 select-none shrink-0 z-20">
+            <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto">
+              <button
+                type="button"
+                onClick={() => switchMainTab('compressor')}
+                className="px-3 sm:px-4 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all whitespace-nowrap cursor-pointer"
+              >
+                Compressor
+              </button>
+
+              <button
+                type="button"
+                onClick={() => switchMainTab('converter')}
+                className="px-3 sm:px-4 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all whitespace-nowrap cursor-pointer"
+              >
+                Converter
+              </button>
+
+              <button
+                type="button"
+                onClick={() => switchMainTab('resize')}
+                className={`px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                  activeTab === 'resize'
+                    ? 'bg-cyan-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span>Resize (PS Canvas)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => switchMainTab('psd_studio')}
+                className={`px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                  activeTab === 'psd_studio'
+                    ? 'bg-cyan-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <FileCode className="w-3.5 h-3.5" />
+                <span>PSD Studio</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={toggleMoreTools}
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <Wrench className="w-3.5 h-3.5 text-emerald-400" />
+                <span>More Tools</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Studio Workspace Content */}
+          <div className="flex-1 w-full min-h-0 overflow-hidden flex flex-col">
+            {activeTab === 'resize' && <ResizeTool backendUrl={BACKEND_URL} />}
+            {activeTab === 'psd_studio' && <PsdTool backendUrl={BACKEND_URL} />}
+          </div>
+        </main>
+      ) : (
+        <main className="flex-1 w-full mx-auto px-4 py-6 sm:py-8 flex flex-col items-center transition-all duration-200 max-w-4xl">
         {/* Hero Section */}
         <section className="w-full text-center mb-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold mb-2.5 shadow-2xs">
@@ -528,15 +601,19 @@ export default function LeafLiteStudioPage() {
             ) : activeTab === 'converter' ? (
               <>Convert Image <span className="text-emerald-600">Formats</span></>
             ) : activeTab === 'resize' ? (
-              <>Resize Image <span className="text-emerald-600">Dimensions</span></>
+              <>Photoshop Canvas & <span className="text-cyan-600">Resize Studio</span></>
+            ) : activeTab === 'psd_studio' ? (
+              <>Photoshop PSD <span className="text-cyan-600">Layer Studio</span></>
             ) : (
               <>Specialized <span className="text-emerald-600">LeafLite Tools</span></>
             )}
           </h1>
 
-          <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
             {activeTab === 'resize'
-              ? 'Scale images by percentage or specify exact pixel dimensions with aspect ratio lock.'
+              ? 'Multi-canvas studio with Photoshop controls (Ctrl+N, Ctrl+T, Shift lock), image layers, custom resolutions, and system export.'
+              : activeTab === 'psd_studio'
+              ? 'Inspect PSD layer hierarchy, extract text, inspect CSS typography & spacing, hide/show layers, and export layers to WebP, PNG, or JPG.'
               : activeTab === 'more_tools'
               ? 'Target KB reducer, PDF merge, quality metrics, dimension inspection, and EXIF privacy tools.'
               : 'Fast, high-fidelity image processing. Drop up to 10 images at once, auto-detect formats, and download all in a ZIP file.'}
@@ -547,13 +624,13 @@ export default function LeafLiteStudioPage() {
         {/* MAIN TOOL CARD                                                            */}
         {/* ========================================================================= */}
         <div className="w-full bg-white rounded-2xl border border-slate-200/90 shadow-md shadow-slate-100/80 overflow-hidden mb-8">
-          {/* Top Primary Tabs Bar: Compressor | Converter | Resize | More Tools */}
+          {/* Top Primary Tabs Bar: Compressor | Converter | Resize | PSD Studio | More Tools */}
           <div className="flex items-center justify-between border-b border-slate-100 bg-[#fbfcfd] px-4 pt-2">
-            <div className="flex gap-1.5 sm:gap-2">
+            <div className="flex gap-1.5 sm:gap-2 overflow-x-auto">
               <button
                 type="button"
                 onClick={() => switchMainTab('compressor')}
-                className={`px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-t-lg transition-all border-b-2 ${
+                className={`px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-t-lg transition-all border-b-2 whitespace-nowrap ${
                   activeTab === 'compressor'
                     ? 'border-emerald-600 text-emerald-700 bg-white shadow-2xs'
                     : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -565,7 +642,7 @@ export default function LeafLiteStudioPage() {
               <button
                 type="button"
                 onClick={() => switchMainTab('converter')}
-                className={`px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-t-lg transition-all border-b-2 ${
+                className={`px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-t-lg transition-all border-b-2 whitespace-nowrap ${
                   activeTab === 'converter'
                     ? 'border-emerald-600 text-emerald-700 bg-white shadow-2xs'
                     : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -578,14 +655,28 @@ export default function LeafLiteStudioPage() {
               <button
                 type="button"
                 onClick={() => switchMainTab('resize')}
-                className={`px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-t-lg transition-all border-b-2 flex items-center gap-1.5 ${
+                className={`px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-t-lg transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
                   activeTab === 'resize'
-                    ? 'border-emerald-600 text-emerald-700 bg-white shadow-2xs'
+                    ? 'border-cyan-600 text-cyan-700 bg-white shadow-2xs'
                     : 'border-transparent text-slate-500 hover:text-slate-800'
                 }`}
               >
                 <Maximize2 className="w-3.5 h-3.5" />
-                <span>Resize</span>
+                <span>Resize (PS Canvas)</span>
+              </button>
+
+              {/* PSD Studio Tab (Shown right after Resize) */}
+              <button
+                type="button"
+                onClick={() => switchMainTab('psd_studio')}
+                className={`px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-t-lg transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
+                  activeTab === 'psd_studio'
+                    ? 'border-cyan-600 text-cyan-700 bg-white shadow-2xs'
+                    : 'border-transparent text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <FileCode className="w-3.5 h-3.5 text-cyan-600" />
+                <span>PSD Studio</span>
               </button>
             </div>
 
@@ -655,12 +746,7 @@ export default function LeafLiteStudioPage() {
 
           {/* Card Body */}
           <div className="p-6 sm:p-8 flex flex-col items-center">
-            {activeTab === 'resize' ? (
-              /* Resize Tool Component */
-              <div className="w-full">
-                <ResizeTool backendUrl={BACKEND_URL} />
-              </div>
-            ) : activeTab === 'more_tools' ? (
+            {activeTab === 'more_tools' ? (
               /* More Tools Components */
               <div className="w-full text-left">
                 {selectedExtraTool === 'kb_reducer' && <KbReducerTool backendUrl={BACKEND_URL} />}
@@ -998,6 +1084,7 @@ export default function LeafLiteStudioPage() {
           </div>
         </div>
       </main>
+      )}
 
       {/* ========================================================================= */}
       {/* RESULTS POPUP MODAL                                                       */}
@@ -1136,22 +1223,24 @@ export default function LeafLiteStudioPage() {
         </div>
       )}
 
-      {/* LeafLite Footer */}
-      <footer className="w-full border-t border-slate-200/80 bg-white py-6 text-xs text-slate-500">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800">LeafLite Studio</span>
-            <span className="text-slate-300">•</span>
-            <span>Stateless Image Optimization & Conversion Engine</span>
+      {/* LeafLite Footer (Hidden in Studio Mode for 100% full-screen canvas view) */}
+      {!isStudioMode && (
+        <footer className="w-full border-t border-slate-200/80 bg-white py-6 text-xs text-slate-500">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-slate-800">LeafLite Studio</span>
+              <span className="text-slate-300">•</span>
+              <span>Stateless Image Optimization & Conversion Engine</span>
+            </div>
+            <div className="flex items-center gap-4 text-slate-500">
+              <a href={`${BACKEND_URL}/docs`} target="_blank" rel="noreferrer" className="hover:text-emerald-600">
+                Interactive API Docs
+              </a>
+              <span>Port 3000 & 8000</span>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-slate-500">
-            <a href={`${BACKEND_URL}/docs`} target="_blank" rel="noreferrer" className="hover:text-emerald-600">
-              Interactive API Docs
-            </a>
-            <span>Port 3000 & 8000</span>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
     </div>
   );
 }

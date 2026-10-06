@@ -31,7 +31,9 @@ from tools_service import (
     strip_exif_metadata,
     resize_image_tool,
     reduce_image_to_target_kb,
-    merge_pdf_documents
+    merge_pdf_documents,
+    optimize_image_direct,
+    inspect_psd_file
 )
 
 # Initialize FastAPI application
@@ -125,27 +127,56 @@ def health_check(request: Request):
         <html lang="en">
         <head>
             <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>LeafLite Studio - Gateway</title>
             <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fafbfc; color: #0f172a; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-                .card { background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 48px; max-width: 520px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
-                .badge { display: inline-block; background: #ecfdf5; color: #065f46; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; border: 1px solid #a7f3d0; margin-bottom: 16px; }
-                h1 { font-size: 28px; font-weight: 800; margin: 0 0 12px; }
-                p { color: #64748b; font-size: 15px; line-height: 1.5; margin: 0 0 28px; }
+                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fafbfc; color: #0f172a; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+                .card { background: white; border: 1px solid #e2e8f0; border-radius: 24px; padding: 40px; max-width: 540px; width: 100%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+                .badges { display: flex; gap: 8px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+                .badge { display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #065f46; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; border: 1px solid #a7f3d0; }
+                .badge-warn { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+                .dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
+                .dot-warn { background: #f59e0b; }
+                h1 { font-size: 26px; font-weight: 800; margin: 0 0 10px; }
+                p { color: #64748b; font-size: 15px; line-height: 1.5; margin: 0 0 24px; }
                 .btn { display: block; background: #10b981; color: white; text-decoration: none; padding: 14px 24px; border-radius: 14px; font-weight: 700; font-size: 15px; margin-bottom: 12px; transition: all 0.2s; box-shadow: 0 10px 15px -3px rgba(16,185,129,0.3); }
                 .btn:hover { background: #059669; }
                 .btn-secondary { background: #f1f5f9; color: #334155; box-shadow: none; }
                 .btn-secondary:hover { background: #e2e8f0; }
+                .notice-box { margin-top: 16px; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; text-align: left; font-size: 13px; color: #475569; line-height: 1.6; }
+                .notice-box code { background: #e2e8f0; color: #0f172a; padding: 2px 6px; border-radius: 6px; font-size: 12px; font-family: monospace; font-weight: bold; }
             </style>
         </head>
         <body>
             <div class="card">
-                <div class="badge">🍃 API Status: ONLINE (Port 8000)</div>
+                <div class="badges">
+                    <span class="badge"><span class="dot"></span> Backend API: Online (:8000)</span>
+                    <span id="frontend-badge" class="badge badge-warn"><span class="dot dot-warn"></span> Checking Web Studio (:3000)...</span>
+                </div>
                 <h1>LeafLite Studio Gateway</h1>
-                <p>The high-performance stateless image optimization & conversion engine is active.</p>
-                <a href="http://localhost:3000" class="btn">👉 Launch LeafLite Web Studio (Port 3000)</a>
-                <a href="/docs" class="btn btn-secondary">Explore Interactive Swagger API Docs</a>
+                <p>The high-performance image optimization & document processing engine is active.</p>
+                <a id="launch-btn" href="http://localhost:3000" class="btn">👉 Launch LeafLite Web Studio (Port 3000)</a>
+                <a href="/docs" class="btn btn-secondary">Explore Interactive Swagger API Docs (/docs)</a>
+                <div id="offline-tip" class="notice-box" style="display:none;">
+                    💡 <b>Looking for the Web UI?</b> If port 3000 says "site can't be reached", start both Frontend and Backend together by opening a terminal in the project root and running:
+                    <br><br>
+                    <code>npm run dev</code> &nbsp;or double-click <code>run.bat</code>
+                </div>
             </div>
+            <script>
+                fetch('http://localhost:3000', { mode: 'no-cors' })
+                    .then(() => {
+                        const badge = document.getElementById('frontend-badge');
+                        badge.className = 'badge';
+                        badge.innerHTML = '<span class="dot"></span> Web Studio: Online (:3000)';
+                    })
+                    .catch(() => {
+                        const badge = document.getElementById('frontend-badge');
+                        badge.className = 'badge badge-warn';
+                        badge.innerHTML = '<span class="dot dot-warn"></span> Web Studio: Offline (:3000)';
+                        document.getElementById('offline-tip').style.display = 'block';
+                    });
+            </script>
         </body>
         </html>
         """)
@@ -642,6 +673,88 @@ async def api_strip_exif(
             "job_id": job_id,
             "download_url": f"/download/{job_id}",
             "download_filename": download_name,
+            **res
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post(
+    "/api/tools/optimize-direct",
+    tags=["Specialized Tools"],
+    summary="Direct Single-Image or Layer Optimization",
+    description="Directly converts and compresses any image raster or extracted PSD layer into WEBP, PNG, or JPG."
+)
+async def api_optimize_direct(
+    file: UploadFile = File(..., description="Image or canvas raster to optimize"),
+    target_format: str = Form("WEBP", description="Target format (WEBP, PNG, JPG)"),
+    quality: int = Form(85, description="Quality percentage (10-100)")
+):
+    job_id = str(uuid.uuid4())
+    in_ext = Path(file.filename or "image.png").suffix or ".png"
+    raw_path = STORAGE_DIR / f"{job_id}_raw{in_ext}"
+    with open(raw_path, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+
+    fmt = target_format.upper().strip()
+    out_ext = ".jpg" if fmt in ("JPG", "JPEG") else (".png" if fmt == "PNG" else ".webp")
+    out_path = STORAGE_DIR / f"{job_id}_opt{out_ext}"
+
+    try:
+        res = optimize_image_direct(
+            input_path=raw_path,
+            output_path=out_path,
+            output_format=fmt,
+            quality=quality
+        )
+        base_name = Path(file.filename or "layer").stem
+        download_name = f"{base_name}_optimized{out_ext}"
+
+        LOCAL_JOBS[job_id] = {
+            "status": "SUCCESS",
+            "output_path": str(out_path),
+            "download_filename": download_name,
+            **res
+        }
+        return {
+            "job_id": job_id,
+            "download_url": f"/download/{job_id}",
+            "download_filename": download_name,
+            **res
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post(
+    "/api/tools/psd/inspect",
+    tags=["PSD Tools"],
+    summary="Inspect Adobe Photoshop (.psd) Document",
+    description="Extracts layer hierarchy, positions, bounding boxes, text content, font specs, and composite image."
+)
+async def api_inspect_psd(
+    file: UploadFile = File(..., description="Photoshop .psd file to inspect")
+):
+    job_id = str(uuid.uuid4())
+    raw_path = STORAGE_DIR / f"{job_id}_doc.psd"
+    with open(raw_path, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+
+    composite_path = STORAGE_DIR / f"{job_id}_composite.png"
+
+    try:
+        res = inspect_psd_file(psd_path=raw_path, composite_output_path=composite_path)
+        comp_url = f"/download/{job_id}" if composite_path.exists() else None
+        if composite_path.exists():
+            LOCAL_JOBS[job_id] = {
+                "status": "SUCCESS",
+                "output_path": str(composite_path),
+                "download_filename": f"{Path(file.filename or 'document').stem}_preview.png"
+            }
+        return {
+            "job_id": job_id,
+            "filename": file.filename,
+            "composite_url": comp_url,
             **res
         }
     except Exception as exc:

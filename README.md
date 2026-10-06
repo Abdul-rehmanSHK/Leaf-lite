@@ -30,8 +30,22 @@
 - **Clean UI**: Processing results appear in a sleek popup dialog instead of stretching the main card.
 - **Detailed Savings Breakdown**: View original size vs. optimized size with exact percentage savings.
 
-### 🛠️ 5. Specialized Suite Tools
-- **Image Resizer**: Scale images by percentage or specify exact pixel dimensions with aspect ratio lock.
+### 🎨 5. Photoshop Canvas & Resize Studio (Full-Screen Studio)
+- **Photoshop Shortcuts**: `Ctrl+N` for custom canvas resolutions, `Ctrl+T` free transform bounding box with 8 anchor handles, and `Shift` aspect ratio constraint lock.
+- **Multi-Document Tabs**: Manage multiple canvas tabs simultaneously.
+- **Multi-Layer Stacking**: Add, reorder, duplicate, hide, and lock image layers.
+- **Direct Canvas Export**: Export high-resolution canvases to WebP, PNG, or JPG with quality controls.
+
+### 📄 6. Photoshop PSD Layer Studio (Exact PSD Inspector & Exporter)
+- **Full-Screen Workspace**: Dedicated full-bleed workspace with top navbar navigation.
+- **Fluid Pan & Move**: Spacebar drag panning, Hand tool (`H`), mouse wheel scrolling for tall landing pages, and `↔️ Fit Width` / `🔲 Fit All` presets.
+- **100% Adobe Composite Fidelity**: Exact composite rendering backed by `psd-tools` and hardware-accelerated Blob URLs.
+- **Layer Hierarchy & Search**: Inspect layer folders, filter layers in real-time, and jump directly to any layer.
+- **CSS & Typography Extraction**: 1-click copy for font family, font size, weight, line height, letter spacing, hex colors, and exact CSS rules.
+- **Toggleable Measurement Guides**: Inspect spacing calipers and bounding boxes with 1-click guide toggle.
+- **Individual Layer Exporter**: Export and optimize layers directly to WebP, PNG, or JPG.
+
+### 🛠️ 7. Specialized Suite Tools
 - **Target KB Reducer**: Compress images to meet strict maximum file size thresholds (e.g., under 100 KB or 200 KB).
 - **PDF Merger**: Combine multiple PDF files into one clean document with custom page ordering.
 - **Quality & Sharpness Checker**: Laplacian variance and entropy scoring for blur detection.
@@ -63,6 +77,18 @@
 git clone https://github.com/Abdul-rehmanSHK/Leaf-lite.git
 cd Leaf-lite
 ```
+
+---
+
+### ⚡ Fast Start (Run Full Stack with 1 Command)
+From the project root:
+```bash
+# Start both Backend (:8000) and Frontend (:3000) simultaneously
+npm run dev
+
+# Or on Windows, double-click run.bat
+```
+Visit **[http://localhost:3000](http://localhost:3000)**.
 
 ---
 
