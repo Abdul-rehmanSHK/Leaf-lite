@@ -600,21 +600,13 @@ export default function LeafLiteStudioPage() {
               <>Compress <span className="text-emerald-600">Images</span></>
             ) : activeTab === 'converter' ? (
               <>Convert Image <span className="text-emerald-600">Formats</span></>
-            ) : activeTab === 'resize' ? (
-              <>Photoshop Canvas & <span className="text-cyan-600">Resize Studio</span></>
-            ) : activeTab === 'psd_studio' ? (
-              <>Photoshop PSD <span className="text-cyan-600">Layer Studio</span></>
             ) : (
               <>Specialized <span className="text-emerald-600">LeafLite Tools</span></>
             )}
           </h1>
 
           <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            {activeTab === 'resize'
-              ? 'Multi-canvas studio with Photoshop controls (Ctrl+N, Ctrl+T, Shift lock), image layers, custom resolutions, and system export.'
-              : activeTab === 'psd_studio'
-              ? 'Inspect PSD layer hierarchy, extract text, inspect CSS typography & spacing, hide/show layers, and export layers to WebP, PNG, or JPG.'
-              : activeTab === 'more_tools'
+            {activeTab === 'more_tools'
               ? 'Target KB reducer, PDF merge, quality metrics, dimension inspection, and EXIF privacy tools.'
               : 'Fast, high-fidelity image processing. Drop up to 10 images at once, auto-detect formats, and download all in a ZIP file.'}
           </p>
@@ -655,11 +647,7 @@ export default function LeafLiteStudioPage() {
               <button
                 type="button"
                 onClick={() => switchMainTab('resize')}
-                className={`px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-t-lg transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
-                  activeTab === 'resize'
-                    ? 'border-cyan-600 text-cyan-700 bg-white shadow-2xs'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
-                }`}
+                className="px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-t-lg transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap border-transparent text-slate-500 hover:text-slate-800"
               >
                 <Maximize2 className="w-3.5 h-3.5" />
                 <span>Resize (PS Canvas)</span>
@@ -669,11 +657,7 @@ export default function LeafLiteStudioPage() {
               <button
                 type="button"
                 onClick={() => switchMainTab('psd_studio')}
-                className={`px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-t-lg transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap ${
-                  activeTab === 'psd_studio'
-                    ? 'border-cyan-600 text-cyan-700 bg-white shadow-2xs'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
-                }`}
+                className="px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-t-lg transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap border-transparent text-slate-500 hover:text-slate-800"
               >
                 <FileCode className="w-3.5 h-3.5 text-cyan-600" />
                 <span>PSD Studio</span>
