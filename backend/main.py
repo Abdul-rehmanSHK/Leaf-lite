@@ -54,11 +54,12 @@ app = FastAPI(
 )
 
 # CORS configuration to allow local & production Next.js frontend
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001").split(",")
+raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
+ALLOWED_ORIGINS = ["*"] if raw_origins.strip() == "*" else [o.strip() for o in raw_origins.split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=True,
+    allow_credentials=True if ALLOWED_ORIGINS != ["*"] else False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
