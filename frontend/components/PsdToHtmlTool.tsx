@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import JSZip from 'jszip';
+import { convertPsdClientSide } from '../utils/psdToHtmlClient';
 import {
   Upload,
   Download,
@@ -96,14 +98,18 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl }) => {
   const loadSampleData = async () => {
     setIsLoading(true);
     setError(null);
-    setLoadingStep('Parsing trained Marine Construction PSD (86MB)...');
+    setLoadingStep('Loading Marine Construction PSD template...');
 
     try {
       let result: ConversionResult | null = null;
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1500);
         const res = await fetch(`${backendUrl}/api/tools/psd-to-html/sample`, {
-          method: 'POST'
+          method: 'POST',
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
         if (res.ok) {
           result = await res.json();
         }
@@ -119,7 +125,7 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl }) => {
       }
 
       if (!result) {
-        throw new Error('Could not load training sample. Please upload a PSD or verify backend.');
+        throw new Error('Could not load template sample. Please upload a PSD or verify backend.');
       }
 
       setData(result);
@@ -140,31 +146,50 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl }) => {
 
     setIsLoading(true);
     setError(null);
-    setLoadingStep(`Uploading & parsing ${file.name} with geometric bounding-box engine...`);
+    setLoadingStep(`Analyzing & parsing ${file.name}...`);
 
-    const formData = new FormData();
-    formData.append('file', file);
+    let convertedSuccessfully = false;
 
+    // 1. Try local/cloud Python backend first (with a short timeout so user is never blocked)
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      const formData = new FormData();
+      formData.append('file', file);
+
       const res = await fetch(`${backendUrl}/api/tools/psd-to-html/convert`, {
         method: 'POST',
-        body: formData
+        body: formData,
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
 
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.detail || 'Failed to parse and convert PSD.');
+      if (res.ok) {
+        const result: ConversionResult = await res.json();
+        setData(result);
+        setActiveTab('preview');
+        convertedSuccessfully = true;
       }
-
-      const result: ConversionResult = await res.json();
-      setData(result);
-      setActiveTab('preview');
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while converting PSD.');
-    } finally {
-      setIsLoading(false);
-      setLoadingStep('');
+    } catch {
+      // Backend not running locally or blocked by HTTPS mixed-content policy on live URL
     }
+
+    // 2. High-performance Client-Side Fallback (runs in-browser using WebAssembly/ag-psd & JSZip)
+    if (!convertedSuccessfully) {
+      try {
+        setLoadingStep(`Extracting layers, vectors & typography in-browser...`);
+        const clientResult = await convertPsdClientSide(file);
+        setData(clientResult as unknown as ConversionResult);
+        setActiveTab('preview');
+        convertedSuccessfully = true;
+      } catch (clientErr: any) {
+        console.error('Client PSD conversion error:', clientErr);
+        setError(`Failed to convert PSD: ${clientErr.message || 'Error parsing layer tree'}`);
+      }
+    }
+
+    setIsLoading(false);
+    setLoadingStep('');
   };
 
   const handleCopy = (content: string, typeName: string) => {
@@ -185,11 +210,87 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl }) => {
     URL.revokeObjectURL(url);
   };
 
+  // Resilient ZIP downloader (supports Client Blob URLs, Backend URLs, or On-Demand JSZip packaging)
+  const handleDownloadZip = async () => {
+    if (!data) return;
+
+    // 1. If it's already a client blob URL, trigger download directly
+    if (data.zip_download_url && data.zip_download_url.startsWith('blob:')) {
+      const a = document.createElement('a');
+      a.href = data.zip_download_url;
+      a.download = data.zip_filename || 'psd_html_bundle.zip';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      return;
+    }
+
+    // 2. If it's a backend URL, attempt fetch
+    if (data.zip_download_url && !data.zip_download_url.startsWith('blob:')) {
+      try {
+        const res = await fetch(`${backendUrl}${data.zip_download_url}`);
+        if (res.ok) {
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = data.zip_filename || 'psd_html_bundle.zip';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          return;
+        }
+      } catch {
+        // Backend unavailable, fallback to browser packaging
+      }
+    }
+
+    // 3. Fallback: Build ZIP in browser dynamically with JSZip
+    try {
+      const zip = new JSZip();
+      zip.file('index.html', data.html_code);
+      zip.file('tailwind.html', data.tailwind_code);
+      zip.file('css/style.css', data.css_code);
+
+      const imagesFolder = zip.folder('images');
+      for (const asset of data.assets) {
+        if (asset.url.startsWith('data:')) {
+          const base64Data = asset.url.split(',')[1];
+          imagesFolder?.file(asset.filename, base64Data, { base64: true });
+        } else {
+          try {
+            const imgRes = await fetch(asset.url.startsWith('/') ? asset.url : `${backendUrl}${asset.url}`);
+            if (imgRes.ok) {
+              const imgBlob = await imgRes.blob();
+              imagesFolder?.file(asset.filename, imgBlob);
+            }
+          } catch {}
+        }
+      }
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = data.zip_filename || 'psd_html_bundle.zip';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (zipErr: any) {
+      alert('Could not package ZIP: ' + zipErr.message);
+    }
+  };
+
   // Generate self-contained HTML for live preview iframe
   const getPreviewHtml = (): string => {
     if (!data) return '';
 
     const resolveUrl = (asset: ExtractedAsset) => {
+      if (asset.url.startsWith('data:') || asset.url.startsWith('blob:')) {
+        return asset.url;
+      }
       if (asset.url.startsWith('/') && !asset.url.startsWith('/api')) {
         return asset.url;
       }
@@ -669,13 +770,14 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl }) => {
                 <p className="text-[11px] text-slate-300 leading-relaxed">
                   Includes full <code className="text-emerald-300">index.html</code>, <code className="text-emerald-300">tailwind.html</code>, <code className="text-emerald-300">style.css</code>, and all sliced WebP images in <code className="text-emerald-300">images/</code>!
                 </p>
-                <a
-                  href={`${backendUrl}${data.zip_download_url}`}
-                  className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                <button
+                  type="button"
+                  onClick={handleDownloadZip}
+                  className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
                 >
                   <Download className="w-4 h-4" />
                   <span>Download Project ZIP</span>
-                </a>
+                </button>
               </div>
             )}
 

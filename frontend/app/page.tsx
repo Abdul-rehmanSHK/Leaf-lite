@@ -89,11 +89,26 @@ export default function LeafLiteStudioPage() {
   const [processedResults, setProcessedResults] = useState<ProcessedFileItem[]>([]);
   const [showResultModal, setShowResultModal] = useState<boolean>(false);
   const [isZipping, setIsZipping] = useState<boolean>(false);
+  const [isBackendOnline, setIsBackendOnline] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    let isMounted = true;
+    const checkBackend = async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1200);
+        const res = await fetch(`${BACKEND_URL}/health`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (isMounted) setIsBackendOnline(res.ok);
+      } catch {
+        if (isMounted) setIsBackendOnline(false);
+      }
+    };
+    checkBackend();
     return () => {
+      isMounted = false;
       files.forEach((f) => {
         try {
           URL.revokeObjectURL(f.previewUrl);
@@ -503,20 +518,41 @@ export default function LeafLiteStudioPage() {
 
           {/* Engine indicator & Docs link */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-800 text-emerald-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Engine Active (:8000)</span>
+            <div
+              className={`flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full ${
+                isBackendOnline
+                  ? 'bg-emerald-950/60 border border-emerald-800 text-emerald-400'
+                  : 'bg-slate-900/90 border border-slate-700 text-emerald-400'
+              }`}
+              title={
+                isBackendOnline
+                  ? 'Local/Cloud Python engine is connected'
+                  : 'High-performance in-browser client engine active'
+              }
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  isBackendOnline ? 'bg-emerald-500 animate-pulse' : 'bg-emerald-400'
+                }`}
+              />
+              <span>{isBackendOnline ? 'Backend Engine (:8000)' : 'Client-Side Engine Active'}</span>
             </div>
 
-            <a
-              href={`${BACKEND_URL}/docs`}
-              target="_blank"
-              rel="noreferrer"
-              className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${isStudioMode ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50'} transition-colors border border-transparent hover:border-emerald-200`}
-            >
-              <span>API Docs</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+            {isBackendOnline && (
+              <a
+                href={`${BACKEND_URL}/docs`}
+                target="_blank"
+                rel="noreferrer"
+                className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${
+                  isStudioMode
+                    ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    : 'text-slate-600 hover:text-emerald-700 hover:bg-emerald-50'
+                } transition-colors border border-transparent hover:border-emerald-200`}
+              >
+                <span>API Docs</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            )}
           </div>
         </div>
       </header>
