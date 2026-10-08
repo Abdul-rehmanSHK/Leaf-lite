@@ -1,0 +1,999 @@
+{
+  "job_id": "sample_marine_construction",
+  "psd_name": "Marine Construction Homepage 08-26-2026.psd",
+  "dimensions": {
+    "width": 1920,
+    "height": 9934
+  },
+  "detected_sections_count": 17,
+  "extracted_images_count": 106,
+  "primary_color": "#003478",
+  "secondary_color": "#0088ce",
+  "color_palette": [
+    "#003478",
+    "#0088ce",
+    "#484848",
+    "#f4f6f8"
+  ],
+  "fonts": [
+    "Overpass",
+    "Fraunces"
+  ],
+  "sections": [
+    {
+      "name": "Header & Navigation",
+      "type": "header",
+      "heading": "Marine Construction",
+      "images_count": 1,
+      "buttons_count": 1
+    },
+    {
+      "name": "Hero Banner",
+      "type": "hero",
+      "heading": "Custom Dock & Shoreline Construction",
+      "images_count": 1,
+      "buttons_count": 2
+    }
+  ],
+  "html_code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <title>Marine Construction Homepage 08-26-2026 | LeafLite PSD to HTML</title>\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <link href=\"https://fonts.googleapis.com/css2?family=Overpass:wght@300;400;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&display=swap\" rel=\"stylesheet\">\n  <link rel=\"stylesheet\" href=\"css/style.css\" />\n</head>\n<body>\n  <!-- header -->\n  <header class=\"site-header\">\n    <div class=\"container header-container\">\n      <a href=\"#\" class=\"logo\"><img src=\"images/header-mc-logo-color-1.webp\" alt=\"Logo\" /></a>\n      <nav class=\"main-nav\">\n        <ul>\n          <li><a href=\"#about\">About</a></li>\n          <li><a href=\"#serices\">Serices</a></li>\n          <li><a href=\"#projects\">Projects</a></li>\n          <li><a href=\"#serice-areas\">Serice Areas</a></li>\n          <li><a href=\"#resources\">Resources</a></li>\n          <li><a href=\"#referrals\">Referrals</a></li>\n          <li><a href=\"#contact\">Contact</a></li>\n        </ul>\n      </nav>\n      <a href=\"#contact\" class=\"btn btn-secondary\">get an estimate</a>\n    </div>\n  </header>\n  <!-- Hero Banner: Layer 3 copy -->\n  <section class=\"hero-banner\" style=\"background-image: linear-gradient(rgba(0,30,70,0.65), rgba(0,30,70,0.65)), url('images/root-item-1-1.webp'); background-size: cover; background-position: center;\">\n    <div class=\"container hero-container\">\n      <h1>Custom Dock & Shoreline Construction</h1>\n    </div>\n  </section>\n  <!-- Feature Section: photo & content -->\n  <section class=\"feature-two-col\" id=\"section-2\">\n    <div class=\"container feature-grid\">\n      <div class=\"feature-media\">\n        <img src=\"images/photo-content-layer-4-1.webp\" alt=\"Waterfront Construction  \nBuilt Around Your Property & Lifestyle.\" class=\"feature-img\" />\n      </div>\n      <div class=\"feature-content\">\n        <span class=\"eyebrow\">WELCOME TO MARINE CONSTRUCTION LLC</span>\n        <h2>Waterfront Construction  \nBuilt Around Your Property & Lifestyle.</h2>\n        <p>Your waterfront is more than a property feature. It is where boat days begin, family and friends gather, and lasting lake memories are made. It also requires the right construction, protection and ongoing care.\nMarine Construction LLC helps homeowners, property owners and local marinas enhance, protect and enjoy their waterfronts with professionally designed docks, boat and Jet Ski lifts, seawalls, boardwalks and shoreline-stabilization solutions.\nSince 1982, our locally owned company has served the region with experienced crews, purpose-built marine equipment and practical knowledge of local shorelines, water levels and permitting requirements. We manage projects of varying sizes and complexity\u2014from targeted repairs to complete waterfront transformations.</p>\n      </div>\n    </div>\n  </section>\n  <!-- Cards Grid: conversions -->\n  <section class=\"cards-section section-alt\" id=\"section-3\">\n    <div class=\"container\">\n      <div class=\"section-title-wrap\">\n      </div>\n      <div class=\"cards-grid\">\n        <div class=\"card-item\">\n          <div class=\"card-img-wrap\"><img src=\"images/conversions-layer-5-copy-1.webp\" alt=\"Service\" /></div>\n          <div class=\"card-body\">\n            <h3>Service & Feature 1</h3>\n            <p>Whether you are planning a custom dock, protecting an eroding shoreline or repairing an existing waterfront structure, Marine Construction LLC provides the capabilities needed to complete the work safely, efficiently and properly.</p>\n            <a href=\"#\" class=\"card-link\">Learn More &rarr;</a>\n          </div>\n        </div>\n      </div>\n    </div>\n  </section>\n  <!-- Feature Section: content & photo -->\n  <section class=\"feature-two-col\" id=\"section-4\">\n    <div class=\"container feature-grid\">\n      <div class=\"feature-media\">\n        <img src=\"images/content-photo-layer-6-1.webp\" alt=\"Restoring a Waterfront  \nAfter Hurricane Helene.\" class=\"feature-img\" />\n      </div>\n      <div class=\"feature-content\">\n        <span class=\"eyebrow\">plan a similar project</span>\n        <h2>Restoring a Waterfront  \nAfter Hurricane Helene.</h2>\n        <p>After the storm, this Lake James property needed more than a repair - it needed a coordinated waterfront recovery plan.\n\n   The Work\n\tDock reset on new pilings\n\tStorm debris safely removed\n\tShoreline riprap repaired</p>\n        <p>The result\nA safer, more functional waterfront built around the property\u2019s needs</p>\n        <a href=\"#more\" class=\"btn btn-primary\">FEATURED PROJECT</a>\n      </div>\n    </div>\n  </section>\n  <!-- Cards Grid: tiles -->\n  <section class=\"cards-section section-alt\" id=\"section-5\">\n    <div class=\"container\">\n      <div class=\"section-title-wrap\">\n        <h2>Professional Expertise. Proven Capabilities. \u0003Quality You Can See.</h2>\n      </div>\n      <div class=\"cards-grid\">\n        <div class=\"card-item\">\n          <div class=\"card-img-wrap\"><img src=\"images/tiles-gettyimages-177790390-1.webp\" alt=\"Service\" /></div>\n          <div class=\"card-body\">\n            <h3>Service & Feature 1</h3>\n            <p>Whether you are planning a new dock, protecting an eroding shoreline, or updating an existing waterfront structure, \u0003our team brings the experience, equipment, and specialized capabilities needed to complete the work properly.</p>\n            <a href=\"#\" class=\"card-link\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"card-item\">\n          <div class=\"card-img-wrap\"><img src=\"images/tiles-layer-5-copy-1.webp\" alt=\"Service\" /></div>\n          <div class=\"card-body\">\n            <h3>Service & Feature 2</h3>\n            <p>More Than 40 Years \u0003of Marine Construction Experience</p>\n            <a href=\"#\" class=\"card-link\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"card-item\">\n          <div class=\"card-img-wrap\"><img src=\"images/tiles-layer-128-1.webp\" alt=\"Service\" /></div>\n          <div class=\"card-body\">\n            <h3>Service & Feature 3</h3>\n            <p>Specialized \u0003Marine Crews & Equipment</p>\n            <a href=\"#\" class=\"card-link\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"card-item\">\n          <div class=\"card-img-wrap\"><img src=\"images/tiles-layer-128-copy-2-1.webp\" alt=\"Service\" /></div>\n          <div class=\"card-body\">\n            <h3>Service & Feature 4</h3>\n            <p>Site-Specific Waterfront \u0003Solutions</p>\n            <a href=\"#\" class=\"card-link\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"card-item\">\n          <div class=\"card-img-wrap\"><img src=\"images/tiles-layer-128-copy-5-1.webp\" alt=\"Service\" /></div>\n          <div class=\"card-body\">\n            <h3>Service & Feature 5</h3>\n            <p>Permitting Support from Planning \u0003Through Approval</p>\n            <a href=\"#\" class=\"card-link\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"card-item\">\n          <div class=\"card-img-wrap\"><img src=\"images/tiles-layer-128-copy-4-1.webp\" alt=\"Service\" /></div>\n          <div class=\"card-body\">\n            <h3>Service & Feature 6</h3>\n            <p>High-fidelity professional solutions engineered for longevity and performance.</p>\n            <a href=\"#\" class=\"card-link\">Learn More &rarr;</a>\n          </div>\n        </div>\n      </div>\n    </div>\n  </section>\n  <!-- Feature Section: photo & content Duke Energy -->\n  <section class=\"feature-two-col\" id=\"section-6\">\n    <div class=\"container feature-grid\">\n      <div class=\"feature-media\">\n        <img src=\"images/photo-content-duke-energy-shoreline-stabilization-projects-completed-on-lake-rhodhiss-9-1.webp\" alt=\"Trusted. Qualified. Proven.\" class=\"feature-img\" />\n      </div>\n      <div class=\"feature-content\">\n        <span class=\"eyebrow\">duke energy-approved contractor</span>\n        <h2>Trusted. Qualified. Proven.</h2>\n        <p>Marine Construction LLC is proud to be a Duke Energy-approved contractor for waterfront construction projects. This distinction reflects our commitment to professional service, appropriate insurance coverage, quality workmanship, and a positive customer experience.</p>\n        <p>Rigorous Safety Standards\nQuality Craftsmanship\nReliable Project Delivery</p>\n      </div>\n    </div>\n  </section>\n  <!-- Stats Section: stats -->\n  <section class=\"stats-section\" style=\"background: var(--primary); color: #fff;\">\n    <div class=\"container stats-grid\">\n      <div class=\"stat-box\">\n        <div class=\"stat-number\">1982</div>\n        <div class=\"stat-label\">Founded & Serving</div>\n      </div>\n      <div class=\"stat-box\">\n        <div class=\"stat-number\">500+</div>\n        <div class=\"stat-label\">Projects Completed</div>\n      </div>\n      <div class=\"stat-box\">\n        <div class=\"stat-number\">100%</div>\n        <div class=\"stat-label\">Licensed & Insured</div>\n      </div>\n      <div class=\"stat-box\">\n        <div class=\"stat-number\">40+</div>\n        <div class=\"stat-label\">Years Experience</div>\n      </div>\n    </div>\n  </section>\n  <!-- Cards Grid: service area -->\n  <section class=\"cards-section section-alt\" id=\"section-8\">\n    <div class=\"container\">\n      <div class=\"section-title-wrap\">\n        <span class=\"eyebrow\">PROUDLY SERVING THE CATAWBA REGION</span>\n        <h2>Marine Construction Across  \u0003the Catawba Lakes Region.</h2>\n      </div>\n      <div class=\"cards-grid\">\n        <div class=\"card-item\">\n          <div class=\"card-img-wrap\"><img src=\"images/service-area-layer-132-1.webp\" alt=\"Service\" /></div>\n          <div class=\"card-body\">\n            <h3>Service & Feature 1</h3>\n            <p>Local expertise from Lake James to Lake Hickory and the surrounding Catawba communities.\nSelect your community to explore local marine construction services.</p>\n            <a href=\"#\" class=\"card-link\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"card-item\">\n          <div class=\"card-img-wrap\"><img src=\"images/service-area-layer-130-1.webp\" alt=\"Service\" /></div>\n          <div class=\"card-body\">\n            <h3>Service & Feature 2</h3>\n            <p>Find service in your area</p>\n            <a href=\"#\" class=\"card-link\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"card-item\">\n          <div class=\"card-img-wrap\"><img src=\"images/service-area-layer-135-1.webp\" alt=\"Service\" /></div>\n          <div class=\"card-body\">\n            <h3>Service & Feature 3</h3>\n            <p>High-fidelity professional solutions engineered for longevity and performance.</p>\n            <a href=\"#\" class=\"card-link\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"card-item\">\n          <div class=\"card-img-wrap\"><img src=\"images/service-area-layer-5-copy-3-1.webp\" alt=\"Service\" /></div>\n          <div class=\"card-body\">\n            <h3>Service & Feature 4</h3>\n            <p>High-fidelity professional solutions engineered for longevity and performance.</p>\n            <a href=\"#\" class=\"card-link\">Learn More &rarr;</a>\n          </div>\n        </div>\n      </div>\n    </div>\n  </section>\n  <!-- Section: team -->\n  <section class=\"generic-section\" id=\"section-9\">\n    <div class=\"container\">\n      <span class=\"eyebrow\">The People Behind the work</span>\n      <h2>Local Experience. Personal Accountability.</h2>\n      <p>Meet the experienced people who plan, manage, and build waterfront projects across the Catawba Lakes region.</p>\n      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.\n\nEaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.\n>  Read Bio\n\nquia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.</p>\n      <div class=\"section-images\">\n        <img src=\"images/team-layer-5-copy-9-1.webp\" alt=\"Layer 5 copy 9\" class=\"generic-img\" />\n      </div>\n      <a href=\"#\" class=\"btn btn-primary\">OWNER</a>\n    </div>\n  </section>\n  <!-- Section: Gus -->\n  <section class=\"generic-section\" id=\"section-10\">\n    <div class=\"container\">\n      <span class=\"eyebrow\">our official mascot</span>\n      <h2>Meet Gus!</h2>\n      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. \nSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. \n\nNeque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.</p>\n      <div class=\"section-images\">\n        <img src=\"images/gus-layer-134-1.webp\" alt=\"Layer 134\" class=\"generic-img\" />\n        <img src=\"images/gus-layer-5-copy-10-1.webp\" alt=\"Layer 5 copy 10\" class=\"generic-img\" />\n      </div>\n    </div>\n  </section>\n  <!-- Section: testimonials -->\n  <section class=\"generic-section\" id=\"section-11\">\n    <div class=\"container\">\n      <span class=\"eyebrow\">Testimonials</span>\n      <h2>Trusted by Lakefront Property Owners.</h2>\n      <p>See why homeowners throughout the Catawba region trust our team with their shoreline.</p>\n      <p>Charlie and his team made the dock building process easy. Having someone we can trust to do the job right gives us great peace of mind. They have gone above and beyond in accommodating our requests.\n\n\nAudra, City, State</p>\n      <div class=\"section-images\">\n        <img src=\"images/testimonials-layer-5-copy-4-1.webp\" alt=\"Layer 5 copy 4\" class=\"generic-img\" />\n      </div>\n      <a href=\"#\" class=\"btn btn-primary\">Read More Reviews</a>\n    </div>\n  </section>\n  <!-- Section: blog -->\n  <section class=\"generic-section\" id=\"section-12\">\n    <div class=\"container\">\n      <span class=\"eyebrow\">PLAN YOUR PROJECT WITH CONFIDENCE</span>\n      <p>Visit Our Resource Center</p>\n      <p>Dock Permitting Guide\nLearn what is typically involved in the approval and permitting process for waterfront construction.\u0003> Read Our Dock Permitting Guide</p>\n      <div class=\"section-images\">\n        <img src=\"images/blog-layer-127-1.webp\" alt=\"Layer 127\" class=\"generic-img\" />\n        <img src=\"images/blog-layer-5-copy-5-1.webp\" alt=\"Layer 5 copy 5\" class=\"generic-img\" />\n      </div>\n    </div>\n  </section>\n  <!-- Section: faq -->\n  <section class=\"generic-section\" id=\"section-13\">\n    <div class=\"container\">\n      <span class=\"eyebrow\">What services does Marine Construction LLC provide?\n\nWhat lakes does Marine Construction LLC serve?\nMarine Construction LLC primarily serves Lake Hickory, Lake Rhodhiss and Lake James, along with nearby Western North Carolina communities including Hickory, Granite Falls, Icard, Marion, Morganton, Nebo, Valdese and Rhodhiss. Contact us to confirm service availability for your specific waterfront property.\n\nDo you build both stationary and floating docks?\n\nCan you design a custom dock for my family and watercraft?\n\nDoes Marine Construction LLC handle waterfront permits?\n\nHow long does waterfront permitting take?\n\nCan you repair a storm-damaged dock, seawall or shoreline?\n\nCan you work on waterfront properties with difficult access?\n\nDo you offer free waterfront consultations?</span>\n      <h2>Marine Construction    \u0003Frequently Asked Questions.</h2>\n      <p>v</p>\n      <p>v</p>\n      <div class=\"section-images\">\n        <img src=\"images/faq-mc-stationary-lift-07-1.webp\" alt=\"mc-stationary-lift-07\" class=\"generic-img\" />\n        <img src=\"images/faq-layer-5-copy-6-1.webp\" alt=\"Layer 5 copy 6\" class=\"generic-img\" />\n      </div>\n      <a href=\"#\" class=\"btn btn-primary\">Q&A</a>\n    </div>\n  </section>\n  <!-- Section: logos -->\n  <section class=\"generic-section\" id=\"section-14\">\n    <div class=\"container\">\n      <span class=\"eyebrow\">Our Trusted Brands</span>\n      <h2>Quality Materials. Trusted Partners.</h2>\n      <p>We work with established marine construction, decking, and boat-lift manufacturers to provide dependable products that meet our standards for performance, durability, and appearance. Combined with professional installation and the right equipment for the job, these materials help us build waterfront solutions designed for long-term use.</p>\n      <p><                                                                                                        ></p>\n      <div class=\"section-images\">\n        <img src=\"images/logos-layer-5-copy-8-1.webp\" alt=\"Layer 5 copy 8\" class=\"generic-img\" />\n        <img src=\"images/logos-logo-header-1.webp\" alt=\"logo-header\" class=\"generic-img\" />\n        <img src=\"images/logos-econo-lift-logo-color-1.webp\" alt=\"Econo-Lift-Logo-Color\" class=\"generic-img\" />\n        <img src=\"images/logos-esp-logo-900-1.webp\" alt=\"esp-logo-900\" class=\"generic-img\" />\n      </div>\n    </div>\n  </section>\n  <!-- Footer: CTA -->\n  <footer class=\"site-footer\">\n    <div class=\"container footer-grid\">\n      <div class=\"footer-col\">\n        <h4 class=\"footer-title\">Marine Construction Homepage 08-26-2026</h4>\n        <p>Serving lakefront property owners with dedicated craftsmanship, environmental expertise, and enduring construction.</p>\n      </div>\n      <div class=\"footer-col\">\n        <h4 class=\"footer-title\">Quick Links</h4>\n        <ul class=\"footer-links\">\n          <li><a href=\"#home\">Home</a></li>\n          <li><a href=\"#about-us\">About Us</a></li>\n          <li><a href=\"#our-services\">Our Services</a></li>\n          <li><a href=\"#recent-projects\">Recent Projects</a></li>\n          <li><a href=\"#contact\">Contact</a></li>\n        </ul>\n      </div>\n      <div class=\"footer-col\">\n        <h4 class=\"footer-title\">Get in Touch</h4>\n        <p>Phone: 828-495-3040<br/>Email: info@marineconstruction.com<br/>Office: Lake Hickory, NC</p>\n      </div>\n    </div>\n    <div class=\"footer-bottom\">\n      <div class=\"container\">\n        <p>&copy; 2026 Marine Construction Homepage 08-26-2026. All rights reserved. Generated with LeafLite Studio.</p>\n      </div>\n    </div>\n  </footer>\n  <!-- Footer: footer -->\n  <footer class=\"site-footer\">\n    <div class=\"container footer-grid\">\n      <div class=\"footer-col\">\n        <h4 class=\"footer-title\">Marine Construction Homepage 08-26-2026</h4>\n        <p>Serving lakefront property owners with dedicated craftsmanship, environmental expertise, and enduring construction.</p>\n      </div>\n      <div class=\"footer-col\">\n        <h4 class=\"footer-title\">Quick Links</h4>\n        <ul class=\"footer-links\">\n          <li><a href=\"#home\">Home</a></li>\n          <li><a href=\"#about-us\">About Us</a></li>\n          <li><a href=\"#our-services\">Our Services</a></li>\n          <li><a href=\"#recent-projects\">Recent Projects</a></li>\n          <li><a href=\"#contact\">Contact</a></li>\n        </ul>\n      </div>\n      <div class=\"footer-col\">\n        <h4 class=\"footer-title\">Get in Touch</h4>\n        <p>Phone: 828-495-3040<br/>Email: info@marineconstruction.com<br/>Office: Lake Hickory, NC</p>\n      </div>\n    </div>\n    <div class=\"footer-bottom\">\n      <div class=\"container\">\n        <p>&copy; 2026 Marine Construction Homepage 08-26-2026. All rights reserved. Generated with LeafLite Studio.</p>\n      </div>\n    </div>\n  </footer>\n</body>\n</html>",
+  "css_code": "/* ========================================================================= */\n/* \ud83c\udf43 LeafLite Generated Modern CSS (Learned Reference Style)                 */\n/* ========================================================================= */\n:root {\n  --primary: #003478;\n  --secondary: #484848;\n  --text-dark: #1e293b;\n  --text-muted: #64748b;\n  --bg-light: #f8fafc;\n  --font-body: \"Overpass\", system-ui, sans-serif;\n  --font-heading: \"Fraunces\", Georgia, serif;\n  --container-max: 1620px;\n}\n\n* { box-sizing: border-box; margin: 0; padding: 0; }\nbody { font-family: var(--font-body); color: var(--text-dark); background: #ffffff; line-height: 1.6; }\na { text-decoration: none; color: inherit; transition: all 0.3s ease; }\nimg { max-width: 100%; height: auto; display: block; }\n.container { max-width: var(--container-max); margin: 0 auto; padding: 0 24px; width: 100%; }\n\n/* Typography */\nh1, h2, h3, h4 { font-family: var(--font-heading); color: var(--primary); font-weight: 600; line-height: 1.25; }\nh1 { font-size: clamp(36px, 5vw, 64px); letter-spacing: -0.5px; margin-bottom: 20px; }\nh2 { font-size: clamp(28px, 3.5vw, 44px); margin-bottom: 18px; }\nh3 { font-size: clamp(20px, 2.5vw, 26px); margin-bottom: 12px; }\np { color: var(--text-muted); font-size: 16px; margin-bottom: 18px; }\n.eyebrow { text-transform: uppercase; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; color: var(--secondary); margin-bottom: 10px; display: inline-block; }\n\n/* Buttons */\n.btn { display: inline-flex; align-items: center; justify-content: center; padding: 14px 28px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 4px; transition: all 0.3s ease-in-out; cursor: pointer; border: none; }\n.btn-primary { background: var(--primary); color: #ffffff; }\n.btn-primary:hover { background: var(--secondary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }\n.btn-secondary { background: var(--secondary); color: #ffffff; }\n.btn-secondary:hover { background: var(--primary); transform: translateY(-2px); }\n.btn-outline { background: transparent; color: #ffffff; border: 2px solid #ffffff; }\n.btn-outline:hover { background: #ffffff; color: var(--primary); }\n\n/* Section Wrappers */\nsection { padding: 80px 0; position: relative; }\n.section-alt { background-color: var(--bg-light); }\n\n/* Site Header */\n.site-header { width: 100%; padding: 20px 0; background: #ffffff; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }\n.header-container { display: flex; align-items: center; justify-content: space-between; gap: 24px; }\n.logo img { max-height: 48px; width: auto; }\n.logo-text { font-family: var(--font-heading); font-size: 24px; font-weight: 700; color: var(--primary); }\n.main-nav ul { display: flex; list-style: none; gap: 28px; }\n.main-nav a { font-size: 14px; font-weight: 600; text-transform: uppercase; color: var(--text-dark); }\n.main-nav a:hover { color: var(--secondary); }\n@media (max-width: 992px) { .main-nav { display: none; } }\n\n/* Hero Banner */\n.hero-banner { min-height: 650px; display: flex; align-items: center; color: #ffffff; padding: 120px 0; }\n.banner-gradient { background: linear-gradient(135deg, var(--primary), var(--secondary)); }\n.hero-container { max-width: 900px; text-align: left; }\n.hero-banner h1 { color: #ffffff; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }\n.hero-eyebrow { color: #38bdf8; }\n.hero-desc { color: #e2e8f0; font-size: 18px; margin-bottom: 32px; max-width: 720px; }\n.hero-btns { display: flex; gap: 16px; flex-wrap: wrap; }\n\n/* Two Column Feature */\n.feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }\n.feature-img { width: 100%; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }\n@media (max-width: 992px) { .feature-grid { grid-template-columns: 1fr; gap: 36px; } }\n\n/* Cards Grid */\n.section-title-wrap { text-align: center; max-width: 800px; margin: 0 auto 50px auto; }\n.cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; }\n.card-item { background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: all 0.3s ease; }\n.card-item:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.12); }\n.card-img-wrap img { width: 100%; height: 220px; object-fit: cover; }\n.card-body { padding: 28px; }\n.card-link { font-weight: 700; color: var(--secondary); display: inline-flex; align-items: center; gap: 6px; }\n.card-link:hover { color: var(--primary); }\n\n/* Two Column Feature */\n.feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }\n.feature-img { width: 100%; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }\n@media (max-width: 992px) { .feature-grid { grid-template-columns: 1fr; gap: 36px; } }\n\n/* Cards Grid */\n.section-title-wrap { text-align: center; max-width: 800px; margin: 0 auto 50px auto; }\n.cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; }\n.card-item { background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: all 0.3s ease; }\n.card-item:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.12); }\n.card-img-wrap img { width: 100%; height: 220px; object-fit: cover; }\n.card-body { padding: 28px; }\n.card-link { font-weight: 700; color: var(--secondary); display: inline-flex; align-items: center; gap: 6px; }\n.card-link:hover { color: var(--primary); }\n\n/* Two Column Feature */\n.feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }\n.feature-img { width: 100%; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }\n@media (max-width: 992px) { .feature-grid { grid-template-columns: 1fr; gap: 36px; } }\n\n/* Stats */\n.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }\n.stat-number { font-family: var(--font-heading); font-size: 48px; font-weight: 700; color: var(--secondary); margin-bottom: 8px; }\n.stat-label { font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #e2e8f0; }\n@media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 36px; } }\n\n/* Cards Grid */\n.section-title-wrap { text-align: center; max-width: 800px; margin: 0 auto 50px auto; }\n.cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; }\n.card-item { background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: all 0.3s ease; }\n.card-item:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.12); }\n.card-img-wrap img { width: 100%; height: 220px; object-fit: cover; }\n.card-body { padding: 28px; }\n.card-link { font-weight: 700; color: var(--secondary); display: inline-flex; align-items: center; gap: 6px; }\n.card-link:hover { color: var(--primary); }\n\n/* Footer */\n.site-footer { background: #0f172a; color: #94a3b8; padding-top: 70px; }\n.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; padding-bottom: 60px; }\n.footer-title { color: #ffffff; font-size: 18px; margin-bottom: 20px; }\n.footer-links { list-style: none; space-y: 10px; }\n.footer-links li { margin-bottom: 10px; }\n.footer-links a:hover { color: var(--secondary); }\n.footer-bottom { border-top: 1px solid #1e293b; padding: 24px 0; text-align: center; font-size: 13px; }\n@media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr; gap: 36px; } }\n\n/* Footer */\n.site-footer { background: #0f172a; color: #94a3b8; padding-top: 70px; }\n.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; padding-bottom: 60px; }\n.footer-title { color: #ffffff; font-size: 18px; margin-bottom: 20px; }\n.footer-links { list-style: none; space-y: 10px; }\n.footer-links li { margin-bottom: 10px; }\n.footer-links a:hover { color: var(--secondary); }\n.footer-bottom { border-top: 1px solid #1e293b; padding: 24px 0; text-align: center; font-size: 13px; }\n@media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr; gap: 36px; } }\n",
+  "tailwind_code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <title>Marine Construction Homepage 08-26-2026 | LeafLite PSD to Tailwind</title>\n  <!-- Tailwind CSS CDN -->\n  <script src=\"https://cdn.tailwindcss.com\"></script>\n  <script>\n    tailwind.config = {\n      theme: {\n        extend: {\n          colors: {\n            brandPrimary: \"#003478\",\n            brandSecondary: \"#484848\",\n          }\n        }\n      }\n    }\n  </script>\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <link href=\"https://fonts.googleapis.com/css2?family=Overpass:wght@300;400;600;700&family=Fraunces:ital,wght@0,400;0,600;1,400&display=swap\" rel=\"stylesheet\">\n  <style>\n    body { font-family: \"Overpass\", system-ui, sans-serif; }\n    h1, h2, h3, h4 { font-family: \"Fraunces\", Georgia, serif; }\n  </style>\n</head>\n<body class=\"bg-white text-slate-800 antialiased selection:bg-cyan-500 selection:text-white\">\n  <!-- Header: header -->\n  <header class=\"sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs\">\n    <div class=\"max-w-[1620px] mx-auto px-6 h-20 flex items-center justify-between gap-6\">\n      <a href=\"#\" class=\"shrink-0\"><img src=\"images/header-mc-logo-color-1.webp\" alt=\"Logo\" class=\"h-12 w-auto\" /></a>\n      <nav class=\"hidden lg:flex items-center gap-8\">\n        <a href=\"#about\" class=\"text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors\">About</a>\n        <a href=\"#serices\" class=\"text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors\">Serices</a>\n        <a href=\"#projects\" class=\"text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors\">Projects</a>\n        <a href=\"#serice-areas\" class=\"text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors\">Serice Areas</a>\n        <a href=\"#resources\" class=\"text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors\">Resources</a>\n        <a href=\"#referrals\" class=\"text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors\">Referrals</a>\n        <a href=\"#contact\" class=\"text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors\">Contact</a>\n      </nav>\n      <a href=\"#contact\" class=\"px-6 py-2.5 bg-brandSecondary hover:bg-brandPrimary text-white text-xs font-bold uppercase tracking-wider rounded transition-all shadow-sm hover:shadow-md\">get an estimate</a>\n    </div>\n  </header>\n  <!-- Hero Banner: Layer 3 copy -->\n  <section class=\"min-h-[640px] flex items-center py-24 text-white\" style=\"background-image: linear-gradient(rgba(0,34,75,0.7), rgba(0,34,75,0.7)), url('images/root-item-1-1.webp'); background-size: cover; background-position: center;\">\n    <div class=\"max-w-[1620px] mx-auto px-6 w-full\">\n      <div class=\"max-w-3xl\">\n        <h1 class=\"text-4xl sm:text-6xl font-bold leading-tight mb-6 drop-shadow-md\">Custom Dock & Shoreline Construction</h1>\n      </div>\n    </div>\n  </section>\n  <!-- Feature 2-Column: photo & content -->\n  <section class=\"py-20 lg:py-28 bg-white\">\n    <div class=\"max-w-[1620px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center\">\n      <div><img src=\"images/photo-content-layer-4-1.webp\" alt=\"Waterfront Construction  \nBuilt Around Your Property & Lifestyle.\" class=\"rounded-xl shadow-xl w-full object-cover max-h-[550px]\" /></div>\n      <div class=\"space-y-6\">\n        <span class=\"text-brandSecondary text-xs font-bold uppercase tracking-widest block\">WELCOME TO MARINE CONSTRUCTION LLC</span>\n        <h2 class=\"text-3xl sm:text-4xl font-bold text-brandPrimary\">Waterfront Construction  \nBuilt Around Your Property & Lifestyle.</h2>\n        <p class=\"text-slate-600 leading-relaxed\">Your waterfront is more than a property feature. It is where boat days begin, family and friends gather, and lasting lake memories are made. It also requires the right construction, protection and ongoing care.\nMarine Construction LLC helps homeowners, property owners and local marinas enhance, protect and enjoy their waterfronts with professionally designed docks, boat and Jet Ski lifts, seawalls, boardwalks and shoreline-stabilization solutions.\nSince 1982, our locally owned company has served the region with experienced crews, purpose-built marine equipment and practical knowledge of local shorelines, water levels and permitting requirements. We manage projects of varying sizes and complexity\u2014from targeted repairs to complete waterfront transformations.</p>\n      </div>\n    </div>\n  </section>\n  <!-- Cards Grid: conversions -->\n  <section class=\"py-24 bg-slate-50\">\n    <div class=\"max-w-[1620px] mx-auto px-6\">\n      <div class=\"text-center max-w-2xl mx-auto mb-16\">\n      </div>\n      <div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8\">\n        <div class=\"bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col\">\n          <img src=\"images/conversions-layer-5-copy-1.webp\" alt=\"Service\" class=\"w-full h-56 object-cover\" />\n          <div class=\"p-6 flex-1 flex flex-col justify-between\">\n            <div>\n              <h3 class=\"text-xl font-bold text-brandPrimary mb-2\">Service Solution 1</h3>\n              <p class=\"text-slate-600 text-sm leading-relaxed mb-4\">Whether you are planning a custom dock, protecting an eroding shoreline or repairing an existing waterfront structure, Marine Construction LLC provides the capabilities needed to complete the work safely, efficiently and properly.</p>\n            </div>\n            <a href=\"#\" class=\"text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider\">Learn More &rarr;</a>\n          </div>\n        </div>\n      </div>\n    </div>\n  </section>\n  <!-- Feature 2-Column: content & photo -->\n  <section class=\"py-20 lg:py-28 bg-white\">\n    <div class=\"max-w-[1620px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center\">\n      <div><img src=\"images/content-photo-layer-6-1.webp\" alt=\"Restoring a Waterfront  \nAfter Hurricane Helene.\" class=\"rounded-xl shadow-xl w-full object-cover max-h-[550px]\" /></div>\n      <div class=\"space-y-6\">\n        <span class=\"text-brandSecondary text-xs font-bold uppercase tracking-widest block\">plan a similar project</span>\n        <h2 class=\"text-3xl sm:text-4xl font-bold text-brandPrimary\">Restoring a Waterfront  \nAfter Hurricane Helene.</h2>\n        <p class=\"text-slate-600 leading-relaxed\">After the storm, this Lake James property needed more than a repair - it needed a coordinated waterfront recovery plan.\n\n   The Work\n\tDock reset on new pilings\n\tStorm debris safely removed\n\tShoreline riprap repaired</p>\n        <p class=\"text-slate-600 leading-relaxed\">The result\nA safer, more functional waterfront built around the property\u2019s needs</p>\n        <a href=\"#more\" class=\"inline-block px-7 py-3 bg-brandPrimary hover:bg-brandSecondary text-white text-xs font-bold uppercase tracking-wider rounded transition-all\">FEATURED PROJECT</a>\n      </div>\n    </div>\n  </section>\n  <!-- Cards Grid: tiles -->\n  <section class=\"py-24 bg-slate-50\">\n    <div class=\"max-w-[1620px] mx-auto px-6\">\n      <div class=\"text-center max-w-2xl mx-auto mb-16\">\n        <h2 class=\"text-3xl sm:text-4xl font-bold text-brandPrimary\">Professional Expertise. Proven Capabilities. \u0003Quality You Can See.</h2>\n      </div>\n      <div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8\">\n        <div class=\"bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col\">\n          <img src=\"images/tiles-gettyimages-177790390-1.webp\" alt=\"Service\" class=\"w-full h-56 object-cover\" />\n          <div class=\"p-6 flex-1 flex flex-col justify-between\">\n            <div>\n              <h3 class=\"text-xl font-bold text-brandPrimary mb-2\">Service Solution 1</h3>\n              <p class=\"text-slate-600 text-sm leading-relaxed mb-4\">Whether you are planning a new dock, protecting an eroding shoreline, or updating an existing waterfront structure, \u0003our team brings the experience, equipment, and specialized capabilities needed to complete the work properly.</p>\n            </div>\n            <a href=\"#\" class=\"text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col\">\n          <img src=\"images/tiles-layer-5-copy-1.webp\" alt=\"Service\" class=\"w-full h-56 object-cover\" />\n          <div class=\"p-6 flex-1 flex flex-col justify-between\">\n            <div>\n              <h3 class=\"text-xl font-bold text-brandPrimary mb-2\">Service Solution 2</h3>\n              <p class=\"text-slate-600 text-sm leading-relaxed mb-4\">More Than 40 Years \u0003of Marine Construction Experience</p>\n            </div>\n            <a href=\"#\" class=\"text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col\">\n          <img src=\"images/tiles-layer-128-1.webp\" alt=\"Service\" class=\"w-full h-56 object-cover\" />\n          <div class=\"p-6 flex-1 flex flex-col justify-between\">\n            <div>\n              <h3 class=\"text-xl font-bold text-brandPrimary mb-2\">Service Solution 3</h3>\n              <p class=\"text-slate-600 text-sm leading-relaxed mb-4\">Specialized \u0003Marine Crews & Equipment</p>\n            </div>\n            <a href=\"#\" class=\"text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col\">\n          <img src=\"images/tiles-layer-128-copy-2-1.webp\" alt=\"Service\" class=\"w-full h-56 object-cover\" />\n          <div class=\"p-6 flex-1 flex flex-col justify-between\">\n            <div>\n              <h3 class=\"text-xl font-bold text-brandPrimary mb-2\">Service Solution 4</h3>\n              <p class=\"text-slate-600 text-sm leading-relaxed mb-4\">Site-Specific Waterfront \u0003Solutions</p>\n            </div>\n            <a href=\"#\" class=\"text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col\">\n          <img src=\"images/tiles-layer-128-copy-5-1.webp\" alt=\"Service\" class=\"w-full h-56 object-cover\" />\n          <div class=\"p-6 flex-1 flex flex-col justify-between\">\n            <div>\n              <h3 class=\"text-xl font-bold text-brandPrimary mb-2\">Service Solution 5</h3>\n              <p class=\"text-slate-600 text-sm leading-relaxed mb-4\">Permitting Support from Planning \u0003Through Approval</p>\n            </div>\n            <a href=\"#\" class=\"text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col\">\n          <img src=\"images/tiles-layer-128-copy-4-1.webp\" alt=\"Service\" class=\"w-full h-56 object-cover\" />\n          <div class=\"p-6 flex-1 flex flex-col justify-between\">\n            <div>\n              <h3 class=\"text-xl font-bold text-brandPrimary mb-2\">Service Solution 6</h3>\n              <p class=\"text-slate-600 text-sm leading-relaxed mb-4\">Engineered waterfront solutions delivered with industry-leading precision.</p>\n            </div>\n            <a href=\"#\" class=\"text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider\">Learn More &rarr;</a>\n          </div>\n        </div>\n      </div>\n    </div>\n  </section>\n  <!-- Feature 2-Column: photo & content Duke Energy -->\n  <section class=\"py-20 lg:py-28 bg-white\">\n    <div class=\"max-w-[1620px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center\">\n      <div><img src=\"images/photo-content-duke-energy-shoreline-stabilization-projects-completed-on-lake-rhodhiss-9-1.webp\" alt=\"Trusted. Qualified. Proven.\" class=\"rounded-xl shadow-xl w-full object-cover max-h-[550px]\" /></div>\n      <div class=\"space-y-6\">\n        <span class=\"text-brandSecondary text-xs font-bold uppercase tracking-widest block\">duke energy-approved contractor</span>\n        <h2 class=\"text-3xl sm:text-4xl font-bold text-brandPrimary\">Trusted. Qualified. Proven.</h2>\n        <p class=\"text-slate-600 leading-relaxed\">Marine Construction LLC is proud to be a Duke Energy-approved contractor for waterfront construction projects. This distinction reflects our commitment to professional service, appropriate insurance coverage, quality workmanship, and a positive customer experience.</p>\n        <p class=\"text-slate-600 leading-relaxed\">Rigorous Safety Standards\nQuality Craftsmanship\nReliable Project Delivery</p>\n      </div>\n    </div>\n  </section>\n  <!-- Stats: stats -->\n  <section class=\"py-16 bg-brandPrimary text-white\">\n    <div class=\"max-w-[1620px] mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center\">\n      <div>\n        <div class=\"text-4xl sm:text-5xl font-bold text-cyan-400 mb-2\">1982</div>\n        <div class=\"text-xs font-bold uppercase tracking-wider text-slate-300\">Founded & Serving</div>\n      </div>\n      <div>\n        <div class=\"text-4xl sm:text-5xl font-bold text-cyan-400 mb-2\">500+</div>\n        <div class=\"text-xs font-bold uppercase tracking-wider text-slate-300\">Projects Completed</div>\n      </div>\n      <div>\n        <div class=\"text-4xl sm:text-5xl font-bold text-cyan-400 mb-2\">100%</div>\n        <div class=\"text-xs font-bold uppercase tracking-wider text-slate-300\">Licensed & Insured</div>\n      </div>\n      <div>\n        <div class=\"text-4xl sm:text-5xl font-bold text-cyan-400 mb-2\">40+</div>\n        <div class=\"text-xs font-bold uppercase tracking-wider text-slate-300\">Years Experience</div>\n      </div>\n    </div>\n  </section>\n  <!-- Cards Grid: service area -->\n  <section class=\"py-24 bg-slate-50\">\n    <div class=\"max-w-[1620px] mx-auto px-6\">\n      <div class=\"text-center max-w-2xl mx-auto mb-16\">\n        <span class=\"text-brandSecondary text-xs font-bold uppercase tracking-widest block mb-2\">PROUDLY SERVING THE CATAWBA REGION</span>\n        <h2 class=\"text-3xl sm:text-4xl font-bold text-brandPrimary\">Marine Construction Across  \u0003the Catawba Lakes Region.</h2>\n      </div>\n      <div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8\">\n        <div class=\"bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col\">\n          <img src=\"images/service-area-layer-132-1.webp\" alt=\"Service\" class=\"w-full h-56 object-cover\" />\n          <div class=\"p-6 flex-1 flex flex-col justify-between\">\n            <div>\n              <h3 class=\"text-xl font-bold text-brandPrimary mb-2\">Service Solution 1</h3>\n              <p class=\"text-slate-600 text-sm leading-relaxed mb-4\">Local expertise from Lake James to Lake Hickory and the surrounding Catawba communities.\nSelect your community to explore local marine construction services.</p>\n            </div>\n            <a href=\"#\" class=\"text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col\">\n          <img src=\"images/service-area-layer-130-1.webp\" alt=\"Service\" class=\"w-full h-56 object-cover\" />\n          <div class=\"p-6 flex-1 flex flex-col justify-between\">\n            <div>\n              <h3 class=\"text-xl font-bold text-brandPrimary mb-2\">Service Solution 2</h3>\n              <p class=\"text-slate-600 text-sm leading-relaxed mb-4\">Find service in your area</p>\n            </div>\n            <a href=\"#\" class=\"text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col\">\n          <img src=\"images/service-area-layer-135-1.webp\" alt=\"Service\" class=\"w-full h-56 object-cover\" />\n          <div class=\"p-6 flex-1 flex flex-col justify-between\">\n            <div>\n              <h3 class=\"text-xl font-bold text-brandPrimary mb-2\">Service Solution 3</h3>\n              <p class=\"text-slate-600 text-sm leading-relaxed mb-4\">Engineered waterfront solutions delivered with industry-leading precision.</p>\n            </div>\n            <a href=\"#\" class=\"text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider\">Learn More &rarr;</a>\n          </div>\n        </div>\n        <div class=\"bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col\">\n          <img src=\"images/service-area-layer-5-copy-3-1.webp\" alt=\"Service\" class=\"w-full h-56 object-cover\" />\n          <div class=\"p-6 flex-1 flex flex-col justify-between\">\n            <div>\n              <h3 class=\"text-xl font-bold text-brandPrimary mb-2\">Service Solution 4</h3>\n              <p class=\"text-slate-600 text-sm leading-relaxed mb-4\">Engineered waterfront solutions delivered with industry-leading precision.</p>\n            </div>\n            <a href=\"#\" class=\"text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider\">Learn More &rarr;</a>\n          </div>\n        </div>\n      </div>\n    </div>\n  </section>\n  <!-- Footer: CTA -->\n  <footer class=\"bg-slate-900 text-slate-400 pt-20 pb-12\">\n    <div class=\"max-w-[1620px] mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 pb-16 border-b border-slate-800\">\n      <div>\n        <h4 class=\"text-white text-lg font-bold mb-4\">Marine Construction Homepage 08-26-2026</h4>\n        <p class=\"text-sm leading-relaxed text-slate-400\">Serving lakefront property owners with dedicated craftsmanship, environmental expertise, and enduring construction.</p>\n      </div>\n      <div>\n        <h4 class=\"text-white text-lg font-bold mb-4\">Quick Links</h4>\n        <ul class=\"space-y-2 text-sm\">\n          <li><a href=\"#home\" class=\"hover:text-white transition-colors\">Home</a></li>\n          <li><a href=\"#about-us\" class=\"hover:text-white transition-colors\">About Us</a></li>\n          <li><a href=\"#our-services\" class=\"hover:text-white transition-colors\">Our Services</a></li>\n          <li><a href=\"#recent-projects\" class=\"hover:text-white transition-colors\">Recent Projects</a></li>\n          <li><a href=\"#contact\" class=\"hover:text-white transition-colors\">Contact</a></li>\n        </ul>\n      </div>\n      <div>\n        <h4 class=\"text-white text-lg font-bold mb-4\">Contact</h4>\n        <p class=\"text-sm text-slate-400\">Phone: 828-495-3040<br/>Email: info@marineconstruction.com<br/>Lake Hickory, NC</p>\n      </div>\n    </div>\n    <div class=\"max-w-[1620px] mx-auto px-6 text-center text-xs text-slate-500 pt-8\">\n      &copy; 2026 Marine Construction Homepage 08-26-2026. All rights reserved. Generated with LeafLite Studio.\n    </div>\n  </footer>\n  <!-- Footer: footer -->\n  <footer class=\"bg-slate-900 text-slate-400 pt-20 pb-12\">\n    <div class=\"max-w-[1620px] mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 pb-16 border-b border-slate-800\">\n      <div>\n        <h4 class=\"text-white text-lg font-bold mb-4\">Marine Construction Homepage 08-26-2026</h4>\n        <p class=\"text-sm leading-relaxed text-slate-400\">Serving lakefront property owners with dedicated craftsmanship, environmental expertise, and enduring construction.</p>\n      </div>\n      <div>\n        <h4 class=\"text-white text-lg font-bold mb-4\">Quick Links</h4>\n        <ul class=\"space-y-2 text-sm\">\n          <li><a href=\"#home\" class=\"hover:text-white transition-colors\">Home</a></li>\n          <li><a href=\"#about-us\" class=\"hover:text-white transition-colors\">About Us</a></li>\n          <li><a href=\"#our-services\" class=\"hover:text-white transition-colors\">Our Services</a></li>\n          <li><a href=\"#recent-projects\" class=\"hover:text-white transition-colors\">Recent Projects</a></li>\n          <li><a href=\"#contact\" class=\"hover:text-white transition-colors\">Contact</a></li>\n        </ul>\n      </div>\n      <div>\n        <h4 class=\"text-white text-lg font-bold mb-4\">Contact</h4>\n        <p class=\"text-sm text-slate-400\">Phone: 828-495-3040<br/>Email: info@marineconstruction.com<br/>Lake Hickory, NC</p>\n      </div>\n    </div>\n    <div class=\"max-w-[1620px] mx-auto px-6 text-center text-xs text-slate-500 pt-8\">\n      &copy; 2026 Marine Construction Homepage 08-26-2026. All rights reserved. Generated with LeafLite Studio.\n    </div>\n  </footer>\n</body>\n</html>",
+  "assets": [
+    {
+      "name": "blog-layer-127-1",
+      "filename": "blog-layer-127-1.webp",
+      "path": "backend\\test_out\\images\\blog-layer-127-1.webp",
+      "url": "/sample_assets/blog-layer-127-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 233248
+    },
+    {
+      "name": "blog-layer-127",
+      "filename": "blog-layer-127.webp",
+      "path": "backend\\test_out\\images\\blog-layer-127.webp",
+      "url": "/sample_assets/blog-layer-127.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 233248
+    },
+    {
+      "name": "blog-layer-5-copy-5-1",
+      "filename": "blog-layer-5-copy-5-1.webp",
+      "path": "backend\\test_out\\images\\blog-layer-5-copy-5-1.webp",
+      "url": "/sample_assets/blog-layer-5-copy-5-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "blog-layer-5-copy-5",
+      "filename": "blog-layer-5-copy-5.webp",
+      "path": "backend\\test_out\\images\\blog-layer-5-copy-5.webp",
+      "url": "/sample_assets/blog-layer-5-copy-5.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "content-photo-layer-129-1",
+      "filename": "content-photo-layer-129-1.webp",
+      "path": "backend\\test_out\\images\\content-photo-layer-129-1.webp",
+      "url": "/sample_assets/content-photo-layer-129-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 484
+    },
+    {
+      "name": "content-photo-layer-129-copy-1",
+      "filename": "content-photo-layer-129-copy-1.webp",
+      "path": "backend\\test_out\\images\\content-photo-layer-129-copy-1.webp",
+      "url": "/sample_assets/content-photo-layer-129-copy-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 488
+    },
+    {
+      "name": "content-photo-layer-129-copy-2-1",
+      "filename": "content-photo-layer-129-copy-2-1.webp",
+      "path": "backend\\test_out\\images\\content-photo-layer-129-copy-2-1.webp",
+      "url": "/sample_assets/content-photo-layer-129-copy-2-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 478
+    },
+    {
+      "name": "content-photo-layer-129-copy-2",
+      "filename": "content-photo-layer-129-copy-2.webp",
+      "path": "backend\\test_out\\images\\content-photo-layer-129-copy-2.webp",
+      "url": "/sample_assets/content-photo-layer-129-copy-2.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 478
+    },
+    {
+      "name": "content-photo-layer-129-copy",
+      "filename": "content-photo-layer-129-copy.webp",
+      "path": "backend\\test_out\\images\\content-photo-layer-129-copy.webp",
+      "url": "/sample_assets/content-photo-layer-129-copy.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 488
+    },
+    {
+      "name": "content-photo-layer-129",
+      "filename": "content-photo-layer-129.webp",
+      "path": "backend\\test_out\\images\\content-photo-layer-129.webp",
+      "url": "/sample_assets/content-photo-layer-129.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 484
+    },
+    {
+      "name": "content-photo-layer-5-1",
+      "filename": "content-photo-layer-5-1.webp",
+      "path": "backend\\test_out\\images\\content-photo-layer-5-1.webp",
+      "url": "/sample_assets/content-photo-layer-5-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "content-photo-layer-5",
+      "filename": "content-photo-layer-5.webp",
+      "path": "backend\\test_out\\images\\content-photo-layer-5.webp",
+      "url": "/sample_assets/content-photo-layer-5.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "content-photo-layer-6-1",
+      "filename": "content-photo-layer-6-1.webp",
+      "path": "backend\\test_out\\images\\content-photo-layer-6-1.webp",
+      "url": "/sample_assets/content-photo-layer-6-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 165848
+    },
+    {
+      "name": "content-photo-layer-6",
+      "filename": "content-photo-layer-6.webp",
+      "path": "backend\\test_out\\images\\content-photo-layer-6.webp",
+      "url": "/sample_assets/content-photo-layer-6.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 165848
+    },
+    {
+      "name": "conversions-layer-5-copy-1",
+      "filename": "conversions-layer-5-copy-1.webp",
+      "path": "backend\\test_out\\images\\conversions-layer-5-copy-1.webp",
+      "url": "/sample_assets/conversions-layer-5-copy-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 246
+    },
+    {
+      "name": "conversions-layer-5-copy",
+      "filename": "conversions-layer-5-copy.webp",
+      "path": "backend\\test_out\\images\\conversions-layer-5-copy.webp",
+      "url": "/sample_assets/conversions-layer-5-copy.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 246
+    },
+    {
+      "name": "cta-524060833-723094907004109-4017902100977356001-n-1",
+      "filename": "cta-524060833-723094907004109-4017902100977356001-n-1.webp",
+      "path": "backend\\test_out\\images\\cta-524060833-723094907004109-4017902100977356001-n-1.webp",
+      "url": "/sample_assets/cta-524060833-723094907004109-4017902100977356001-n-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 195286
+    },
+    {
+      "name": "cta-524060833-723094907004109-4017902100977356001-n",
+      "filename": "cta-524060833-723094907004109-4017902100977356001-n.webp",
+      "path": "backend\\test_out\\images\\cta-524060833-723094907004109-4017902100977356001-n.webp",
+      "url": "/sample_assets/cta-524060833-723094907004109-4017902100977356001-n.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 195286
+    },
+    {
+      "name": "cta-layer-126-1",
+      "filename": "cta-layer-126-1.webp",
+      "path": "backend\\test_out\\images\\cta-layer-126-1.webp",
+      "url": "/sample_assets/cta-layer-126-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 2106
+    },
+    {
+      "name": "cta-layer-126",
+      "filename": "cta-layer-126.webp",
+      "path": "backend\\test_out\\images\\cta-layer-126.webp",
+      "url": "/sample_assets/cta-layer-126.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 2106
+    },
+    {
+      "name": "cta-layer-129-copy-3-1",
+      "filename": "cta-layer-129-copy-3-1.webp",
+      "path": "backend\\test_out\\images\\cta-layer-129-copy-3-1.webp",
+      "url": "/sample_assets/cta-layer-129-copy-3-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 550
+    },
+    {
+      "name": "cta-layer-129-copy-3",
+      "filename": "cta-layer-129-copy-3.webp",
+      "path": "backend\\test_out\\images\\cta-layer-129-copy-3.webp",
+      "url": "/sample_assets/cta-layer-129-copy-3.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 550
+    },
+    {
+      "name": "cta-layer-129-copy-4-1",
+      "filename": "cta-layer-129-copy-4-1.webp",
+      "path": "backend\\test_out\\images\\cta-layer-129-copy-4-1.webp",
+      "url": "/sample_assets/cta-layer-129-copy-4-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 534
+    },
+    {
+      "name": "cta-layer-129-copy-4",
+      "filename": "cta-layer-129-copy-4.webp",
+      "path": "backend\\test_out\\images\\cta-layer-129-copy-4.webp",
+      "url": "/sample_assets/cta-layer-129-copy-4.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 534
+    },
+    {
+      "name": "cta-layer-129-copy-5-1",
+      "filename": "cta-layer-129-copy-5-1.webp",
+      "path": "backend\\test_out\\images\\cta-layer-129-copy-5-1.webp",
+      "url": "/sample_assets/cta-layer-129-copy-5-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 534
+    },
+    {
+      "name": "cta-layer-129-copy-5",
+      "filename": "cta-layer-129-copy-5.webp",
+      "path": "backend\\test_out\\images\\cta-layer-129-copy-5.webp",
+      "url": "/sample_assets/cta-layer-129-copy-5.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 534
+    },
+    {
+      "name": "cta-layer-5-copy-7-1",
+      "filename": "cta-layer-5-copy-7-1.webp",
+      "path": "backend\\test_out\\images\\cta-layer-5-copy-7-1.webp",
+      "url": "/sample_assets/cta-layer-5-copy-7-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 246
+    },
+    {
+      "name": "cta-layer-5-copy-7",
+      "filename": "cta-layer-5-copy-7.webp",
+      "path": "backend\\test_out\\images\\cta-layer-5-copy-7.webp",
+      "url": "/sample_assets/cta-layer-5-copy-7.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 246
+    },
+    {
+      "name": "faq-layer-5-copy-6-1",
+      "filename": "faq-layer-5-copy-6-1.webp",
+      "path": "backend\\test_out\\images\\faq-layer-5-copy-6-1.webp",
+      "url": "/sample_assets/faq-layer-5-copy-6-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "faq-layer-5-copy-6",
+      "filename": "faq-layer-5-copy-6.webp",
+      "path": "backend\\test_out\\images\\faq-layer-5-copy-6.webp",
+      "url": "/sample_assets/faq-layer-5-copy-6.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "faq-mc-stationary-lift-07-1",
+      "filename": "faq-mc-stationary-lift-07-1.webp",
+      "path": "backend\\test_out\\images\\faq-mc-stationary-lift-07-1.webp",
+      "url": "/sample_assets/faq-mc-stationary-lift-07-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 124738
+    },
+    {
+      "name": "faq-mc-stationary-lift-07",
+      "filename": "faq-mc-stationary-lift-07.webp",
+      "path": "backend\\test_out\\images\\faq-mc-stationary-lift-07.webp",
+      "url": "/sample_assets/faq-mc-stationary-lift-07.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 124738
+    },
+    {
+      "name": "footer-layer-107-1",
+      "filename": "footer-layer-107-1.webp",
+      "path": "backend\\test_out\\images\\footer-layer-107-1.webp",
+      "url": "/sample_assets/footer-layer-107-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 540
+    },
+    {
+      "name": "footer-layer-107",
+      "filename": "footer-layer-107.webp",
+      "path": "backend\\test_out\\images\\footer-layer-107.webp",
+      "url": "/sample_assets/footer-layer-107.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 540
+    },
+    {
+      "name": "footer-layer-108-1",
+      "filename": "footer-layer-108-1.webp",
+      "path": "backend\\test_out\\images\\footer-layer-108-1.webp",
+      "url": "/sample_assets/footer-layer-108-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 470
+    },
+    {
+      "name": "footer-layer-108",
+      "filename": "footer-layer-108.webp",
+      "path": "backend\\test_out\\images\\footer-layer-108.webp",
+      "url": "/sample_assets/footer-layer-108.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 470
+    },
+    {
+      "name": "footer-mc-logo-color-copy-1",
+      "filename": "footer-mc-logo-color-copy-1.webp",
+      "path": "backend\\test_out\\images\\footer-mc-logo-color-copy-1.webp",
+      "url": "/sample_assets/footer-mc-logo-color-copy-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 3890
+    },
+    {
+      "name": "footer-mc-logo-color-copy",
+      "filename": "footer-mc-logo-color-copy.webp",
+      "path": "backend\\test_out\\images\\footer-mc-logo-color-copy.webp",
+      "url": "/sample_assets/footer-mc-logo-color-copy.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 3890
+    },
+    {
+      "name": "gus-layer-134-1",
+      "filename": "gus-layer-134-1.webp",
+      "path": "backend\\test_out\\images\\gus-layer-134-1.webp",
+      "url": "/sample_assets/gus-layer-134-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 41256
+    },
+    {
+      "name": "gus-layer-134",
+      "filename": "gus-layer-134.webp",
+      "path": "backend\\test_out\\images\\gus-layer-134.webp",
+      "url": "/sample_assets/gus-layer-134.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 41256
+    },
+    {
+      "name": "gus-layer-5-copy-10-1",
+      "filename": "gus-layer-5-copy-10-1.webp",
+      "path": "backend\\test_out\\images\\gus-layer-5-copy-10-1.webp",
+      "url": "/sample_assets/gus-layer-5-copy-10-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "gus-layer-5-copy-10",
+      "filename": "gus-layer-5-copy-10.webp",
+      "path": "backend\\test_out\\images\\gus-layer-5-copy-10.webp",
+      "url": "/sample_assets/gus-layer-5-copy-10.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "header-layer-1-1",
+      "filename": "header-layer-1-1.webp",
+      "path": "backend\\test_out\\images\\header-layer-1-1.webp",
+      "url": "/sample_assets/header-layer-1-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 559910
+    },
+    {
+      "name": "header-layer-1",
+      "filename": "header-layer-1.webp",
+      "path": "backend\\test_out\\images\\header-layer-1.webp",
+      "url": "/sample_assets/header-layer-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 559910
+    },
+    {
+      "name": "header-layer-2-1",
+      "filename": "header-layer-2-1.webp",
+      "path": "backend\\test_out\\images\\header-layer-2-1.webp",
+      "url": "/sample_assets/header-layer-2-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 190
+    },
+    {
+      "name": "header-layer-2",
+      "filename": "header-layer-2.webp",
+      "path": "backend\\test_out\\images\\header-layer-2.webp",
+      "url": "/sample_assets/header-layer-2.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 190
+    },
+    {
+      "name": "header-mc-logo-color-1",
+      "filename": "header-mc-logo-color-1.webp",
+      "path": "backend\\test_out\\images\\header-mc-logo-color-1.webp",
+      "url": "/sample_assets/header-mc-logo-color-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 2880
+    },
+    {
+      "name": "header-mc-logo-color",
+      "filename": "header-mc-logo-color.webp",
+      "path": "backend\\test_out\\images\\header-mc-logo-color.webp",
+      "url": "/sample_assets/header-mc-logo-color.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 2880
+    },
+    {
+      "name": "logos-400-642c41a35d22b-1",
+      "filename": "logos-400-642c41a35d22b-1.webp",
+      "path": "backend\\test_out\\images\\logos-400-642c41a35d22b-1.webp",
+      "url": "/sample_assets/logos-400-642c41a35d22b-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 4140
+    },
+    {
+      "name": "logos-400-642c41a35d22b",
+      "filename": "logos-400-642c41a35d22b.webp",
+      "path": "backend\\test_out\\images\\logos-400-642c41a35d22b.webp",
+      "url": "/sample_assets/logos-400-642c41a35d22b.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 4140
+    },
+    {
+      "name": "logos-econo-lift-logo-color-1",
+      "filename": "logos-econo-lift-logo-color-1.webp",
+      "path": "backend\\test_out\\images\\logos-econo-lift-logo-color-1.webp",
+      "url": "/sample_assets/logos-econo-lift-logo-color-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 4106
+    },
+    {
+      "name": "logos-econo-lift-logo-color",
+      "filename": "logos-econo-lift-logo-color.webp",
+      "path": "backend\\test_out\\images\\logos-econo-lift-logo-color.webp",
+      "url": "/sample_assets/logos-econo-lift-logo-color.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 4106
+    },
+    {
+      "name": "logos-esp-logo-900-1",
+      "filename": "logos-esp-logo-900-1.webp",
+      "path": "backend\\test_out\\images\\logos-esp-logo-900-1.webp",
+      "url": "/sample_assets/logos-esp-logo-900-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 3868
+    },
+    {
+      "name": "logos-esp-logo-900",
+      "filename": "logos-esp-logo-900.webp",
+      "path": "backend\\test_out\\images\\logos-esp-logo-900.webp",
+      "url": "/sample_assets/logos-esp-logo-900.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 3868
+    },
+    {
+      "name": "logos-fiberon-logo-png-seeklogo-541890-1",
+      "filename": "logos-fiberon-logo-png-seeklogo-541890-1.webp",
+      "path": "backend\\test_out\\images\\logos-fiberon-logo-png-seeklogo-541890-1.webp",
+      "url": "/sample_assets/logos-fiberon-logo-png-seeklogo-541890-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 1536
+    },
+    {
+      "name": "logos-fiberon-logo-png-seeklogo-541890",
+      "filename": "logos-fiberon-logo-png-seeklogo-541890.webp",
+      "path": "backend\\test_out\\images\\logos-fiberon-logo-png-seeklogo-541890.webp",
+      "url": "/sample_assets/logos-fiberon-logo-png-seeklogo-541890.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 1536
+    },
+    {
+      "name": "logos-layer-5-copy-8-1",
+      "filename": "logos-layer-5-copy-8-1.webp",
+      "path": "backend\\test_out\\images\\logos-layer-5-copy-8-1.webp",
+      "url": "/sample_assets/logos-layer-5-copy-8-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 246
+    },
+    {
+      "name": "logos-layer-5-copy-8",
+      "filename": "logos-layer-5-copy-8.webp",
+      "path": "backend\\test_out\\images\\logos-layer-5-copy-8.webp",
+      "url": "/sample_assets/logos-layer-5-copy-8.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 246
+    },
+    {
+      "name": "logos-logo-header-1",
+      "filename": "logos-logo-header-1.webp",
+      "path": "backend\\test_out\\images\\logos-logo-header-1.webp",
+      "url": "/sample_assets/logos-logo-header-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 2304
+    },
+    {
+      "name": "logos-logo-header",
+      "filename": "logos-logo-header.webp",
+      "path": "backend\\test_out\\images\\logos-logo-header.webp",
+      "url": "/sample_assets/logos-logo-header.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 2304
+    },
+    {
+      "name": "photo-content-duke-energy-layer-129-1",
+      "filename": "photo-content-duke-energy-layer-129-1.webp",
+      "path": "backend\\test_out\\images\\photo-content-duke-energy-layer-129-1.webp",
+      "url": "/sample_assets/photo-content-duke-energy-layer-129-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 528
+    },
+    {
+      "name": "photo-content-duke-energy-layer-129-copy-1",
+      "filename": "photo-content-duke-energy-layer-129-copy-1.webp",
+      "path": "backend\\test_out\\images\\photo-content-duke-energy-layer-129-copy-1.webp",
+      "url": "/sample_assets/photo-content-duke-energy-layer-129-copy-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 516
+    },
+    {
+      "name": "photo-content-duke-energy-layer-129-copy-2-1",
+      "filename": "photo-content-duke-energy-layer-129-copy-2-1.webp",
+      "path": "backend\\test_out\\images\\photo-content-duke-energy-layer-129-copy-2-1.webp",
+      "url": "/sample_assets/photo-content-duke-energy-layer-129-copy-2-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 516
+    },
+    {
+      "name": "photo-content-duke-energy-layer-129-copy-2",
+      "filename": "photo-content-duke-energy-layer-129-copy-2.webp",
+      "path": "backend\\test_out\\images\\photo-content-duke-energy-layer-129-copy-2.webp",
+      "url": "/sample_assets/photo-content-duke-energy-layer-129-copy-2.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 516
+    },
+    {
+      "name": "photo-content-duke-energy-layer-129-copy",
+      "filename": "photo-content-duke-energy-layer-129-copy.webp",
+      "path": "backend\\test_out\\images\\photo-content-duke-energy-layer-129-copy.webp",
+      "url": "/sample_assets/photo-content-duke-energy-layer-129-copy.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 516
+    },
+    {
+      "name": "photo-content-duke-energy-layer-129",
+      "filename": "photo-content-duke-energy-layer-129.webp",
+      "path": "backend\\test_out\\images\\photo-content-duke-energy-layer-129.webp",
+      "url": "/sample_assets/photo-content-duke-energy-layer-129.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 528
+    },
+    {
+      "name": "photo-content-duke-energy-layer-131-1",
+      "filename": "photo-content-duke-energy-layer-131-1.webp",
+      "path": "backend\\test_out\\images\\photo-content-duke-energy-layer-131-1.webp",
+      "url": "/sample_assets/photo-content-duke-energy-layer-131-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 3896
+    },
+    {
+      "name": "photo-content-duke-energy-layer-131",
+      "filename": "photo-content-duke-energy-layer-131.webp",
+      "path": "backend\\test_out\\images\\photo-content-duke-energy-layer-131.webp",
+      "url": "/sample_assets/photo-content-duke-energy-layer-131.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 3896
+    },
+    {
+      "name": "photo-content-duke-energy-layer-5-1",
+      "filename": "photo-content-duke-energy-layer-5-1.webp",
+      "path": "backend\\test_out\\images\\photo-content-duke-energy-layer-5-1.webp",
+      "url": "/sample_assets/photo-content-duke-energy-layer-5-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "photo-content-duke-energy-layer-5",
+      "filename": "photo-content-duke-energy-layer-5.webp",
+      "path": "backend\\test_out\\images\\photo-content-duke-energy-layer-5.webp",
+      "url": "/sample_assets/photo-content-duke-energy-layer-5.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "photo-content-duke-energy-shoreline-stabilization-projects-completed-on-lake-rhodhiss-9-1",
+      "filename": "photo-content-duke-energy-shoreline-stabilization-projects-completed-on-lake-rhodhiss-9-1.webp",
+      "path": "backend\\test_out\\images\\photo-content-duke-energy-shoreline-stabilization-projects-completed-on-lake-rhodhiss-9-1.webp",
+      "url": "/sample_assets/photo-content-duke-energy-shoreline-stabilization-projects-completed-on-lake-rhodhiss-9-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 202712
+    },
+    {
+      "name": "photo-content-duke-energy-shoreline-stabilization-projects-completed-on-lake-rhodhiss-9",
+      "filename": "photo-content-duke-energy-shoreline-stabilization-projects-completed-on-lake-rhodhiss-9.webp",
+      "path": "backend\\test_out\\images\\photo-content-duke-energy-shoreline-stabilization-projects-completed-on-lake-rhodhiss-9.webp",
+      "url": "/sample_assets/photo-content-duke-energy-shoreline-stabilization-projects-completed-on-lake-rhodhiss-9.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 202712
+    },
+    {
+      "name": "photo-content-layer-4-1",
+      "filename": "photo-content-layer-4-1.webp",
+      "path": "backend\\test_out\\images\\photo-content-layer-4-1.webp",
+      "url": "/sample_assets/photo-content-layer-4-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 128536
+    },
+    {
+      "name": "photo-content-layer-4",
+      "filename": "photo-content-layer-4.webp",
+      "path": "backend\\test_out\\images\\photo-content-layer-4.webp",
+      "url": "/sample_assets/photo-content-layer-4.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 128536
+    },
+    {
+      "name": "photo-content-layer-5-1",
+      "filename": "photo-content-layer-5-1.webp",
+      "path": "backend\\test_out\\images\\photo-content-layer-5-1.webp",
+      "url": "/sample_assets/photo-content-layer-5-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "photo-content-layer-5",
+      "filename": "photo-content-layer-5.webp",
+      "path": "backend\\test_out\\images\\photo-content-layer-5.webp",
+      "url": "/sample_assets/photo-content-layer-5.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "root-item-1-1",
+      "filename": "root-item-1-1.webp",
+      "path": "backend\\test_out\\images\\root-item-1-1.webp",
+      "url": "/sample_assets/root-item-1-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 34254
+    },
+    {
+      "name": "root-item-1",
+      "filename": "root-item-1.webp",
+      "path": "backend\\test_out\\images\\root-item-1.webp",
+      "url": "/sample_assets/root-item-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 34254
+    },
+    {
+      "name": "service-area-layer-130-1",
+      "filename": "service-area-layer-130-1.webp",
+      "path": "backend\\test_out\\images\\service-area-layer-130-1.webp",
+      "url": "/sample_assets/service-area-layer-130-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 45984
+    },
+    {
+      "name": "service-area-layer-130",
+      "filename": "service-area-layer-130.webp",
+      "path": "backend\\test_out\\images\\service-area-layer-130.webp",
+      "url": "/sample_assets/service-area-layer-130.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 45984
+    },
+    {
+      "name": "service-area-layer-132-1",
+      "filename": "service-area-layer-132-1.webp",
+      "path": "backend\\test_out\\images\\service-area-layer-132-1.webp",
+      "url": "/sample_assets/service-area-layer-132-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 1176
+    },
+    {
+      "name": "service-area-layer-132",
+      "filename": "service-area-layer-132.webp",
+      "path": "backend\\test_out\\images\\service-area-layer-132.webp",
+      "url": "/sample_assets/service-area-layer-132.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 1176
+    },
+    {
+      "name": "service-area-layer-135-1",
+      "filename": "service-area-layer-135-1.webp",
+      "path": "backend\\test_out\\images\\service-area-layer-135-1.webp",
+      "url": "/sample_assets/service-area-layer-135-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 49646
+    },
+    {
+      "name": "service-area-layer-135",
+      "filename": "service-area-layer-135.webp",
+      "path": "backend\\test_out\\images\\service-area-layer-135.webp",
+      "url": "/sample_assets/service-area-layer-135.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 49646
+    },
+    {
+      "name": "service-area-layer-5-copy-3-1",
+      "filename": "service-area-layer-5-copy-3-1.webp",
+      "path": "backend\\test_out\\images\\service-area-layer-5-copy-3-1.webp",
+      "url": "/sample_assets/service-area-layer-5-copy-3-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "service-area-layer-5-copy-3",
+      "filename": "service-area-layer-5-copy-3.webp",
+      "path": "backend\\test_out\\images\\service-area-layer-5-copy-3.webp",
+      "url": "/sample_assets/service-area-layer-5-copy-3.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "stats-layer-5-copy-2-1",
+      "filename": "stats-layer-5-copy-2-1.webp",
+      "path": "backend\\test_out\\images\\stats-layer-5-copy-2-1.webp",
+      "url": "/sample_assets/stats-layer-5-copy-2-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 246
+    },
+    {
+      "name": "stats-layer-5-copy-2",
+      "filename": "stats-layer-5-copy-2.webp",
+      "path": "backend\\test_out\\images\\stats-layer-5-copy-2.webp",
+      "url": "/sample_assets/stats-layer-5-copy-2.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 246
+    },
+    {
+      "name": "team-layer-5-copy-9-1",
+      "filename": "team-layer-5-copy-9-1.webp",
+      "path": "backend\\test_out\\images\\team-layer-5-copy-9-1.webp",
+      "url": "/sample_assets/team-layer-5-copy-9-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "team-layer-5-copy-9",
+      "filename": "team-layer-5-copy-9.webp",
+      "path": "backend\\test_out\\images\\team-layer-5-copy-9.webp",
+      "url": "/sample_assets/team-layer-5-copy-9.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "testimonials-layer-5-copy-4-1",
+      "filename": "testimonials-layer-5-copy-4-1.webp",
+      "path": "backend\\test_out\\images\\testimonials-layer-5-copy-4-1.webp",
+      "url": "/sample_assets/testimonials-layer-5-copy-4-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 246
+    },
+    {
+      "name": "testimonials-layer-5-copy-4",
+      "filename": "testimonials-layer-5-copy-4.webp",
+      "path": "backend\\test_out\\images\\testimonials-layer-5-copy-4.webp",
+      "url": "/sample_assets/testimonials-layer-5-copy-4.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 246
+    },
+    {
+      "name": "tiles-gettyimages-177790390-1",
+      "filename": "tiles-gettyimages-177790390-1.webp",
+      "path": "backend\\test_out\\images\\tiles-gettyimages-177790390-1.webp",
+      "url": "/sample_assets/tiles-gettyimages-177790390-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 113896
+    },
+    {
+      "name": "tiles-gettyimages-177790390",
+      "filename": "tiles-gettyimages-177790390.webp",
+      "path": "backend\\test_out\\images\\tiles-gettyimages-177790390.webp",
+      "url": "/sample_assets/tiles-gettyimages-177790390.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 113896
+    },
+    {
+      "name": "tiles-layer-128-1",
+      "filename": "tiles-layer-128-1.webp",
+      "path": "backend\\test_out\\images\\tiles-layer-128-1.webp",
+      "url": "/sample_assets/tiles-layer-128-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 450
+    },
+    {
+      "name": "tiles-layer-128-copy-2-1",
+      "filename": "tiles-layer-128-copy-2-1.webp",
+      "path": "backend\\test_out\\images\\tiles-layer-128-copy-2-1.webp",
+      "url": "/sample_assets/tiles-layer-128-copy-2-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 450
+    },
+    {
+      "name": "tiles-layer-128-copy-2",
+      "filename": "tiles-layer-128-copy-2.webp",
+      "path": "backend\\test_out\\images\\tiles-layer-128-copy-2.webp",
+      "url": "/sample_assets/tiles-layer-128-copy-2.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 450
+    },
+    {
+      "name": "tiles-layer-128-copy-3-1",
+      "filename": "tiles-layer-128-copy-3-1.webp",
+      "path": "backend\\test_out\\images\\tiles-layer-128-copy-3-1.webp",
+      "url": "/sample_assets/tiles-layer-128-copy-3-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 450
+    },
+    {
+      "name": "tiles-layer-128-copy-3",
+      "filename": "tiles-layer-128-copy-3.webp",
+      "path": "backend\\test_out\\images\\tiles-layer-128-copy-3.webp",
+      "url": "/sample_assets/tiles-layer-128-copy-3.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 450
+    },
+    {
+      "name": "tiles-layer-128-copy-4-1",
+      "filename": "tiles-layer-128-copy-4-1.webp",
+      "path": "backend\\test_out\\images\\tiles-layer-128-copy-4-1.webp",
+      "url": "/sample_assets/tiles-layer-128-copy-4-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 450
+    },
+    {
+      "name": "tiles-layer-128-copy-4",
+      "filename": "tiles-layer-128-copy-4.webp",
+      "path": "backend\\test_out\\images\\tiles-layer-128-copy-4.webp",
+      "url": "/sample_assets/tiles-layer-128-copy-4.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 450
+    },
+    {
+      "name": "tiles-layer-128-copy-5-1",
+      "filename": "tiles-layer-128-copy-5-1.webp",
+      "path": "backend\\test_out\\images\\tiles-layer-128-copy-5-1.webp",
+      "url": "/sample_assets/tiles-layer-128-copy-5-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 450
+    },
+    {
+      "name": "tiles-layer-128-copy-5",
+      "filename": "tiles-layer-128-copy-5.webp",
+      "path": "backend\\test_out\\images\\tiles-layer-128-copy-5.webp",
+      "url": "/sample_assets/tiles-layer-128-copy-5.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 450
+    },
+    {
+      "name": "tiles-layer-128",
+      "filename": "tiles-layer-128.webp",
+      "path": "backend\\test_out\\images\\tiles-layer-128.webp",
+      "url": "/sample_assets/tiles-layer-128.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 450
+    },
+    {
+      "name": "tiles-layer-5-copy-1",
+      "filename": "tiles-layer-5-copy-1.webp",
+      "path": "backend\\test_out\\images\\tiles-layer-5-copy-1.webp",
+      "url": "/sample_assets/tiles-layer-5-copy-1.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    },
+    {
+      "name": "tiles-layer-5-copy",
+      "filename": "tiles-layer-5-copy.webp",
+      "path": "backend\\test_out\\images\\tiles-layer-5-copy.webp",
+      "url": "/sample_assets/tiles-layer-5-copy.webp",
+      "width": 800,
+      "height": 600,
+      "size_bytes": 360
+    }
+  ],
+  "zip_download_url": "/backend/test_out/marine-construction-homepage-08-26-2026_html_bundle.zip",
+  "zip_filename": "marine-construction-homepage-08-26-2026_html_bundle.zip"
+}

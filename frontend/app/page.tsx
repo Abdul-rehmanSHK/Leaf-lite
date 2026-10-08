@@ -25,18 +25,20 @@ import {
   FileText,
   Gauge,
   FileCode,
+  Code2,
   X
 } from 'lucide-react';
 
 import { ResizeTool } from '../components/ResizeTool';
 import { PsdTool } from '../components/PsdTool';
+import { PsdToHtmlTool } from '../components/PsdToHtmlTool';
 import { KbReducerTool } from '../components/KbReducerTool';
 import { PdfMergerTool } from '../components/PdfMergerTool';
 import { QualityCheckerTool } from '../components/QualityCheckerTool';
 import { DimensionsCheckerTool } from '../components/DimensionsCheckerTool';
 import { ExifTool } from '../components/ExifTool';
 
-type MainTab = 'compressor' | 'converter' | 'resize' | 'psd_studio' | 'more_tools';
+type MainTab = 'compressor' | 'converter' | 'resize' | 'psd_studio' | 'psd_to_html' | 'more_tools';
 type ExtraTool = 'kb_reducer' | 'pdf_merger' | 'quality_checker' | 'dimensions_checker' | 'exif_tool';
 type OutputFormat = 'WEBP' | 'JPG' | 'PNG' | 'AVIF' | 'SVG';
 
@@ -477,7 +479,7 @@ export default function LeafLiteStudioPage() {
     ? Math.round(((totalOriginalBytes - totalOptimizedBytes) / totalOriginalBytes) * 100)
     : 0;
 
-  const isStudioMode = activeTab === 'resize' || activeTab === 'psd_studio';
+  const isStudioMode = activeTab === 'resize' || activeTab === 'psd_studio' || activeTab === 'psd_to_html';
 
   return (
     <div className={`min-h-screen ${isStudioMode ? 'h-screen overflow-hidden bg-[#0b0f19]' : 'bg-[#fafbfc]'} text-slate-800 flex flex-col font-sans selection:bg-emerald-500 selection:text-white`}>
@@ -566,6 +568,19 @@ export default function LeafLiteStudioPage() {
                 <FileCode className="w-3.5 h-3.5" />
                 <span>PSD Studio</span>
               </button>
+
+              <button
+                type="button"
+                onClick={() => switchMainTab('psd_to_html')}
+                className={`px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                  activeTab === 'psd_to_html'
+                    ? 'bg-gradient-to-r from-cyan-600 to-emerald-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <Code2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>PSD to HTML</span>
+              </button>
             </div>
 
             <div className="flex items-center gap-2">
@@ -584,6 +599,7 @@ export default function LeafLiteStudioPage() {
           <div className="flex-1 w-full min-h-0 overflow-hidden flex flex-col">
             {activeTab === 'resize' && <ResizeTool backendUrl={BACKEND_URL} />}
             {activeTab === 'psd_studio' && <PsdTool backendUrl={BACKEND_URL} />}
+            {activeTab === 'psd_to_html' && <PsdToHtmlTool backendUrl={BACKEND_URL} />}
           </div>
         </main>
       ) : (
@@ -661,6 +677,16 @@ export default function LeafLiteStudioPage() {
               >
                 <FileCode className="w-3.5 h-3.5 text-cyan-600" />
                 <span>PSD Studio</span>
+              </button>
+
+              {/* PSD to HTML Tab */}
+              <button
+                type="button"
+                onClick={() => switchMainTab('psd_to_html')}
+                className="px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold rounded-t-lg transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap border-transparent text-slate-500 hover:text-slate-800"
+              >
+                <Code2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>PSD to HTML</span>
               </button>
             </div>
 

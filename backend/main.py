@@ -1,4 +1,6 @@
 import os
+import re
+import json
 import uuid
 import shutil
 import tempfile
@@ -763,6 +765,134 @@ async def api_inspect_psd(
 
 
 # ==============================================================================
+# PSD TO HTML & TAILWIND SUITE ENDPOINTS
+# ==============================================================================
+
+@app.post(
+    "/api/tools/psd-to-html/convert",
+    tags=["PSD Tools"],
+    summary="Convert Photoshop PSD to HTML & Tailwind Bundle",
+    description="Parses PSD layers, extracts typography & layout tokens, slices all raster assets into WebP, and generates HTML + CSS + Tailwind bundle."
+)
+async def api_psd_to_html_convert(
+    file: UploadFile = File(..., description="Photoshop .psd file to convert")
+):
+    from psd_to_html_engine import PsdToHtmlEngine
+    job_id = str(uuid.uuid4())
+    raw_path = STORAGE_DIR / f"{job_id}_doc.psd"
+    with open(raw_path, "wb") as f:
+        shutil.copyfileobj(file.file, f)
+
+    job_output_dir = STORAGE_DIR / f"psd_html_{job_id}"
+    job_output_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        engine = PsdToHtmlEngine(psd_path=raw_path, output_dir=job_output_dir, job_id=job_id)
+        result = engine.parse_and_generate()
+
+        zip_path = Path(result["zip_path"])
+        LOCAL_JOBS[job_id] = {
+            "status": "SUCCESS",
+            "output_path": str(zip_path),
+            "download_filename": result["zip_filename"]
+        }
+
+        return {
+            "job_id": job_id,
+            "zip_download_url": f"/download/{job_id}",
+            **result
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post(
+    "/api/tools/psd-to-html/sample",
+    tags=["PSD Tools"],
+    summary="Load Pre-Trained Marine Construction PSD Sample",
+    description="Instantly generates or returns pre-cached HTML & Tailwind bundle for the training design reference."
+)
+async def api_psd_to_html_sample():
+    from psd_to_html_engine import PsdToHtmlEngine
+    project_root = Path(__file__).resolve().parent.parent
+    sample_psd = project_root / "design.psd" / "Marine Construction Homepage 08-26-2026.psd"
+    if not sample_psd.exists():
+        alt = list((project_root / "design.psd").glob("*.psd"))
+        if alt:
+            sample_psd = alt[0]
+        else:
+            raise HTTPException(status_code=404, detail="Sample PSD reference not found.")
+
+    job_id = "sample_marine_construction"
+    job_output_dir = STORAGE_DIR / f"psd_html_{job_id}"
+    job_output_dir.mkdir(parents=True, exist_ok=True)
+
+    zip_path = job_output_dir / "marine-construction-homepage-08-26-2026_html_bundle.zip"
+    cached_json = job_output_dir / "result_cache.json"
+
+    if cached_json.exists() and zip_path.exists():
+        try:
+            with open(cached_json, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            LOCAL_JOBS[job_id] = {
+                "status": "SUCCESS",
+                "output_path": str(zip_path),
+                "download_filename": zip_path.name
+            }
+            return {
+                "job_id": job_id,
+                "zip_download_url": f"/download/{job_id}",
+                **data
+            }
+        except Exception:
+            pass
+
+    engine = PsdToHtmlEngine(psd_path=sample_psd, output_dir=job_output_dir, job_id=job_id)
+    result = engine.parse_and_generate()
+
+    LOCAL_JOBS[job_id] = {
+        "status": "SUCCESS",
+        "output_path": result["zip_path"],
+        "download_filename": result["zip_filename"]
+    }
+
+    try:
+        cache_to_save = {k: v for k, v in result.items() if k != "zip_path"}
+        with open(cached_json, "w", encoding="utf-8") as f:
+            json.dump(cache_to_save, f)
+    except Exception:
+        pass
+
+    return {
+        "job_id": job_id,
+        "zip_download_url": f"/download/{job_id}",
+        **result
+    }
+
+
+@app.get(
+    "/api/tools/psd-to-html/asset/{job_id}/{filename}",
+    tags=["PSD Tools"],
+    summary="Get Extracted PSD Image Asset",
+    description="Streams an extracted WebP/PNG image asset for live preview."
+)
+async def api_psd_to_html_asset(job_id: str, filename: str):
+    asset_path = STORAGE_DIR / f"psd_html_{job_id}" / "images" / filename
+    if not asset_path.exists():
+        # Fallback check test_out directory if running in local test mode
+        project_root = Path(__file__).resolve().parent.parent
+        test_path = project_root / "backend" / "test_out" / "images" / filename
+        if test_path.exists():
+            asset_path = test_path
+        else:
+            raise HTTPException(status_code=404, detail="Asset not found")
+
+    ext = asset_path.suffix.lower()
+    media_type = "image/webp" if ext == ".webp" else ("image/png" if ext == ".png" else "image/jpeg")
+    return FileResponse(path=str(asset_path), media_type=media_type)
+
+
+# ==============================================================================
 # DOWNLOAD ENDPOINT
 # ==============================================================================
 
@@ -819,7 +949,8 @@ async def download_optimized_image(
         ".png": "image/png",
         ".webp": "image/webp",
         ".svg": "image/svg+xml",
-        ".pdf": "application/pdf"
+        ".pdf": "application/pdf",
+        ".zip": "application/zip"
     }
     media_type = media_types.get(ext, "application/octet-stream")
 

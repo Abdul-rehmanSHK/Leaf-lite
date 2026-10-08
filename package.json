@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "build": "npm run build --prefix frontend",
     "dev": "concurrently -n \"backend,frontend\" -c \"magenta,cyan\" \"npm run backend\" \"npm run frontend\"",
-    "start": "npm run dev",
+    "start": "npm run start --prefix frontend",
     "dev:backend": "npm run backend",
     "dev:frontend": "npm run frontend",
     "frontend": "powershell -Command \"Set-Location frontend; npm run dev\"",

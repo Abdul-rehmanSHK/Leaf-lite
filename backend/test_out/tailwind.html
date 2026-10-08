@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marine Construction Homepage 08-26-2026 | LeafLite PSD to Tailwind</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandPrimary: "#003478",
+            brandSecondary: "#484848",
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@300;400;600;700&family=Fraunces:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Overpass", system-ui, sans-serif; }
+    h1, h2, h3, h4 { font-family: "Fraunces", Georgia, serif; }
+  </style>
+</head>
+<body class="bg-white text-slate-800 antialiased selection:bg-cyan-500 selection:text-white">
+  <!-- Header: header -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
+    <div class="max-w-[1620px] mx-auto px-6 h-20 flex items-center justify-between gap-6">
+      <a href="#" class="shrink-0"><img src="images/header-mc-logo-color-1.webp" alt="Logo" class="h-12 w-auto" /></a>
+      <nav class="hidden lg:flex items-center gap-8">
+        <a href="#about" class="text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors">About</a>
+        <a href="#serices" class="text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors">Serices</a>
+        <a href="#projects" class="text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors">Projects</a>
+        <a href="#serice-areas" class="text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors">Serice Areas</a>
+        <a href="#resources" class="text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors">Resources</a>
+        <a href="#referrals" class="text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors">Referrals</a>
+        <a href="#contact" class="text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-brandSecondary transition-colors">Contact</a>
+      </nav>
+      <a href="#contact" class="px-6 py-2.5 bg-brandSecondary hover:bg-brandPrimary text-white text-xs font-bold uppercase tracking-wider rounded transition-all shadow-sm hover:shadow-md">get an estimate</a>
+    </div>
+  </header>
+  <!-- Hero Banner: Layer 3 copy -->
+  <section class="min-h-[640px] flex items-center py-24 text-white" style="background-image: linear-gradient(rgba(0,34,75,0.7), rgba(0,34,75,0.7)), url('images/root-item-1-1.webp'); background-size: cover; background-position: center;">
+    <div class="max-w-[1620px] mx-auto px-6 w-full">
+      <div class="max-w-3xl">
+        <h1 class="text-4xl sm:text-6xl font-bold leading-tight mb-6 drop-shadow-md">Custom Dock & Shoreline Construction</h1>
+      </div>
+    </div>
+  </section>
+  <!-- Feature 2-Column: photo & content -->
+  <section class="py-20 lg:py-28 bg-white">
+    <div class="max-w-[1620px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div><img src="images/photo-content-layer-4-1.webp" alt="Waterfront Construction  
+Built Around Your Property & Lifestyle." class="rounded-xl shadow-xl w-full object-cover max-h-[550px]" /></div>
+      <div class="space-y-6">
+        <span class="text-brandSecondary text-xs font-bold uppercase tracking-widest block">WELCOME TO MARINE CONSTRUCTION LLC</span>
+        <h2 class="text-3xl sm:text-4xl font-bold text-brandPrimary">Waterfront Construction  
+Built Around Your Property & Lifestyle.</h2>
+        <p class="text-slate-600 leading-relaxed">Your waterfront is more than a property feature. It is where boat days begin, family and friends gather, and lasting lake memories are made. It also requires the right construction, protection and ongoing care.
+Marine Construction LLC helps homeowners, property owners and local marinas enhance, protect and enjoy their waterfronts with professionally designed docks, boat and Jet Ski lifts, seawalls, boardwalks and shoreline-stabilization solutions.
+Since 1982, our locally owned company has served the region with experienced crews, purpose-built marine equipment and practical knowledge of local shorelines, water levels and permitting requirements. We manage projects of varying sizes and complexity—from targeted repairs to complete waterfront transformations.</p>
+      </div>
+    </div>
+  </section>
+  <!-- Cards Grid: conversions -->
+  <section class="py-24 bg-slate-50">
+    <div class="max-w-[1620px] mx-auto px-6">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col">
+          <img src="images/conversions-layer-5-copy-1.webp" alt="Service" class="w-full h-56 object-cover" />
+          <div class="p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-brandPrimary mb-2">Service Solution 1</h3>
+              <p class="text-slate-600 text-sm leading-relaxed mb-4">Whether you are planning a custom dock, protecting an eroding shoreline or repairing an existing waterfront structure, Marine Construction LLC provides the capabilities needed to complete the work safely, efficiently and properly.</p>
+            </div>
+            <a href="#" class="text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider">Learn More &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Feature 2-Column: content & photo -->
+  <section class="py-20 lg:py-28 bg-white">
+    <div class="max-w-[1620px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div><img src="images/content-photo-layer-6-1.webp" alt="Restoring a Waterfront  
+After Hurricane Helene." class="rounded-xl shadow-xl w-full object-cover max-h-[550px]" /></div>
+      <div class="space-y-6">
+        <span class="text-brandSecondary text-xs font-bold uppercase tracking-widest block">plan a similar project</span>
+        <h2 class="text-3xl sm:text-4xl font-bold text-brandPrimary">Restoring a Waterfront  
+After Hurricane Helene.</h2>
+        <p class="text-slate-600 leading-relaxed">After the storm, this Lake James property needed more than a repair - it needed a coordinated waterfront recovery plan.
+
+   The Work
+	Dock reset on new pilings
+	Storm debris safely removed
+	Shoreline riprap repaired</p>
+        <p class="text-slate-600 leading-relaxed">The result
+A safer, more functional waterfront built around the property’s needs</p>
+        <a href="#more" class="inline-block px-7 py-3 bg-brandPrimary hover:bg-brandSecondary text-white text-xs font-bold uppercase tracking-wider rounded transition-all">FEATURED PROJECT</a>
+      </div>
+    </div>
+  </section>
+  <!-- Cards Grid: tiles -->
+  <section class="py-24 bg-slate-50">
+    <div class="max-w-[1620px] mx-auto px-6">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-brandPrimary">Professional Expertise. Proven Capabilities. Quality You Can See.</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col">
+          <img src="images/tiles-gettyimages-177790390-1.webp" alt="Service" class="w-full h-56 object-cover" />
+          <div class="p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-brandPrimary mb-2">Service Solution 1</h3>
+              <p class="text-slate-600 text-sm leading-relaxed mb-4">Whether you are planning a new dock, protecting an eroding shoreline, or updating an existing waterfront structure, our team brings the experience, equipment, and specialized capabilities needed to complete the work properly.</p>
+            </div>
+            <a href="#" class="text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider">Learn More &rarr;</a>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col">
+          <img src="images/tiles-layer-5-copy-1.webp" alt="Service" class="w-full h-56 object-cover" />
+          <div class="p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-brandPrimary mb-2">Service Solution 2</h3>
+              <p class="text-slate-600 text-sm leading-relaxed mb-4">More Than 40 Years of Marine Construction Experience</p>
+            </div>
+            <a href="#" class="text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider">Learn More &rarr;</a>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col">
+          <img src="images/tiles-layer-128-1.webp" alt="Service" class="w-full h-56 object-cover" />
+          <div class="p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-brandPrimary mb-2">Service Solution 3</h3>
+              <p class="text-slate-600 text-sm leading-relaxed mb-4">Specialized Marine Crews & Equipment</p>
+            </div>
+            <a href="#" class="text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider">Learn More &rarr;</a>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col">
+          <img src="images/tiles-layer-128-copy-2-1.webp" alt="Service" class="w-full h-56 object-cover" />
+          <div class="p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-brandPrimary mb-2">Service Solution 4</h3>
+              <p class="text-slate-600 text-sm leading-relaxed mb-4">Site-Specific Waterfront Solutions</p>
+            </div>
+            <a href="#" class="text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider">Learn More &rarr;</a>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col">
+          <img src="images/tiles-layer-128-copy-5-1.webp" alt="Service" class="w-full h-56 object-cover" />
+          <div class="p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-brandPrimary mb-2">Service Solution 5</h3>
+              <p class="text-slate-600 text-sm leading-relaxed mb-4">Permitting Support from Planning Through Approval</p>
+            </div>
+            <a href="#" class="text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider">Learn More &rarr;</a>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col">
+          <img src="images/tiles-layer-128-copy-4-1.webp" alt="Service" class="w-full h-56 object-cover" />
+          <div class="p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-brandPrimary mb-2">Service Solution 6</h3>
+              <p class="text-slate-600 text-sm leading-relaxed mb-4">Engineered waterfront solutions delivered with industry-leading precision.</p>
+            </div>
+            <a href="#" class="text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider">Learn More &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Feature 2-Column: photo & content Duke Energy -->
+  <section class="py-20 lg:py-28 bg-white">
+    <div class="max-w-[1620px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div><img src="images/photo-content-duke-energy-shoreline-stabilization-projects-completed-on-lake-rhodhiss-9-1.webp" alt="Trusted. Qualified. Proven." class="rounded-xl shadow-xl w-full object-cover max-h-[550px]" /></div>
+      <div class="space-y-6">
+        <span class="text-brandSecondary text-xs font-bold uppercase tracking-widest block">duke energy-approved contractor</span>
+        <h2 class="text-3xl sm:text-4xl font-bold text-brandPrimary">Trusted. Qualified. Proven.</h2>
+        <p class="text-slate-600 leading-relaxed">Marine Construction LLC is proud to be a Duke Energy-approved contractor for waterfront construction projects. This distinction reflects our commitment to professional service, appropriate insurance coverage, quality workmanship, and a positive customer experience.</p>
+        <p class="text-slate-600 leading-relaxed">Rigorous Safety Standards
+Quality Craftsmanship
+Reliable Project Delivery</p>
+      </div>
+    </div>
+  </section>
+  <!-- Stats: stats -->
+  <section class="py-16 bg-brandPrimary text-white">
+    <div class="max-w-[1620px] mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+      <div>
+        <div class="text-4xl sm:text-5xl font-bold text-cyan-400 mb-2">1982</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-300">Founded & Serving</div>
+      </div>
+      <div>
+        <div class="text-4xl sm:text-5xl font-bold text-cyan-400 mb-2">500+</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-300">Projects Completed</div>
+      </div>
+      <div>
+        <div class="text-4xl sm:text-5xl font-bold text-cyan-400 mb-2">100%</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-300">Licensed & Insured</div>
+      </div>
+      <div>
+        <div class="text-4xl sm:text-5xl font-bold text-cyan-400 mb-2">40+</div>
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-300">Years Experience</div>
+      </div>
+    </div>
+  </section>
+  <!-- Cards Grid: service area -->
+  <section class="py-24 bg-slate-50">
+    <div class="max-w-[1620px] mx-auto px-6">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <span class="text-brandSecondary text-xs font-bold uppercase tracking-widest block mb-2">PROUDLY SERVING THE CATAWBA REGION</span>
+        <h2 class="text-3xl sm:text-4xl font-bold text-brandPrimary">Marine Construction Across  the Catawba Lakes Region.</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col">
+          <img src="images/service-area-layer-132-1.webp" alt="Service" class="w-full h-56 object-cover" />
+          <div class="p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-brandPrimary mb-2">Service Solution 1</h3>
+              <p class="text-slate-600 text-sm leading-relaxed mb-4">Local expertise from Lake James to Lake Hickory and the surrounding Catawba communities.
+Select your community to explore local marine construction services.</p>
+            </div>
+            <a href="#" class="text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider">Learn More &rarr;</a>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col">
+          <img src="images/service-area-layer-130-1.webp" alt="Service" class="w-full h-56 object-cover" />
+          <div class="p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-brandPrimary mb-2">Service Solution 2</h3>
+              <p class="text-slate-600 text-sm leading-relaxed mb-4">Find service in your area</p>
+            </div>
+            <a href="#" class="text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider">Learn More &rarr;</a>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col">
+          <img src="images/service-area-layer-135-1.webp" alt="Service" class="w-full h-56 object-cover" />
+          <div class="p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-brandPrimary mb-2">Service Solution 3</h3>
+              <p class="text-slate-600 text-sm leading-relaxed mb-4">Engineered waterfront solutions delivered with industry-leading precision.</p>
+            </div>
+            <a href="#" class="text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider">Learn More &rarr;</a>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border border-slate-100 flex flex-col">
+          <img src="images/service-area-layer-5-copy-3-1.webp" alt="Service" class="w-full h-56 object-cover" />
+          <div class="p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xl font-bold text-brandPrimary mb-2">Service Solution 4</h3>
+              <p class="text-slate-600 text-sm leading-relaxed mb-4">Engineered waterfront solutions delivered with industry-leading precision.</p>
+            </div>
+            <a href="#" class="text-xs font-bold text-brandSecondary hover:text-brandPrimary inline-flex items-center gap-1 uppercase tracking-wider">Learn More &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Footer: CTA -->
+  <footer class="bg-slate-900 text-slate-400 pt-20 pb-12">
+    <div class="max-w-[1620px] mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 pb-16 border-b border-slate-800">
+      <div>
+        <h4 class="text-white text-lg font-bold mb-4">Marine Construction Homepage 08-26-2026</h4>
+        <p class="text-sm leading-relaxed text-slate-400">Serving lakefront property owners with dedicated craftsmanship, environmental expertise, and enduring construction.</p>
+      </div>
+      <div>
+        <h4 class="text-white text-lg font-bold mb-4">Quick Links</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#home" class="hover:text-white transition-colors">Home</a></li>
+          <li><a href="#about-us" class="hover:text-white transition-colors">About Us</a></li>
+          <li><a href="#our-services" class="hover:text-white transition-colors">Our Services</a></li>
+          <li><a href="#recent-projects" class="hover:text-white transition-colors">Recent Projects</a></li>
+          <li><a href="#contact" class="hover:text-white transition-colors">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white text-lg font-bold mb-4">Contact</h4>
+        <p class="text-sm text-slate-400">Phone: 828-495-3040<br/>Email: info@marineconstruction.com<br/>Lake Hickory, NC</p>
+      </div>
+    </div>
+    <div class="max-w-[1620px] mx-auto px-6 text-center text-xs text-slate-500 pt-8">
+      &copy; 2026 Marine Construction Homepage 08-26-2026. All rights reserved. Generated with LeafLite Studio.
+    </div>
+  </footer>
+  <!-- Footer: footer -->
+  <footer class="bg-slate-900 text-slate-400 pt-20 pb-12">
+    <div class="max-w-[1620px] mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 pb-16 border-b border-slate-800">
+      <div>
+        <h4 class="text-white text-lg font-bold mb-4">Marine Construction Homepage 08-26-2026</h4>
+        <p class="text-sm leading-relaxed text-slate-400">Serving lakefront property owners with dedicated craftsmanship, environmental expertise, and enduring construction.</p>
+      </div>
+      <div>
+        <h4 class="text-white text-lg font-bold mb-4">Quick Links</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#home" class="hover:text-white transition-colors">Home</a></li>
+          <li><a href="#about-us" class="hover:text-white transition-colors">About Us</a></li>
+          <li><a href="#our-services" class="hover:text-white transition-colors">Our Services</a></li>
+          <li><a href="#recent-projects" class="hover:text-white transition-colors">Recent Projects</a></li>
+          <li><a href="#contact" class="hover:text-white transition-colors">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white text-lg font-bold mb-4">Contact</h4>
+        <p class="text-sm text-slate-400">Phone: 828-495-3040<br/>Email: info@marineconstruction.com<br/>Lake Hickory, NC</p>
+      </div>
+    </div>
+    <div class="max-w-[1620px] mx-auto px-6 text-center text-xs text-slate-500 pt-8">
+      &copy; 2026 Marine Construction Homepage 08-26-2026. All rights reserved. Generated with LeafLite Studio.
+    </div>
+  </footer>
+</body>
+</html>
