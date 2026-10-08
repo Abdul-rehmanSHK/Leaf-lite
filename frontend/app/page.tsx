@@ -598,7 +598,12 @@ export default function LeafLiteStudioPage() {
           {/* Studio Workspace Content */}
           <div className="flex-1 w-full min-h-0 overflow-hidden flex flex-col">
             {activeTab === 'resize' && <ResizeTool backendUrl={BACKEND_URL} />}
-            {activeTab === 'psd_studio' && <PsdTool backendUrl={BACKEND_URL} />}
+            {activeTab === 'psd_studio' && (
+              <PsdTool
+                backendUrl={BACKEND_URL}
+                onNavigateToPsdToHtml={() => switchMainTab('psd_to_html')}
+              />
+            )}
             {activeTab === 'psd_to_html' && <PsdToHtmlTool backendUrl={BACKEND_URL} />}
           </div>
         </main>

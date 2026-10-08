@@ -30,12 +30,14 @@ import {
   ChevronRight,
   ChevronDown,
   Maximize2,
-  X
+  X,
+  Code2
 } from 'lucide-react';
 import { readPsd, getCompositeCanvas } from 'ag-psd';
 
 interface PsdToolProps {
   backendUrl: string;
+  onNavigateToPsdToHtml?: () => void;
 }
 
 export interface PsdLayerItem {
@@ -65,7 +67,7 @@ export interface PsdLayerItem {
   collapsed?: boolean;
 }
 
-export const PsdTool: React.FC<PsdToolProps> = ({ backendUrl }) => {
+export const PsdTool: React.FC<PsdToolProps> = ({ backendUrl, onNavigateToPsdToHtml }) => {
   const [psdFileName, setPsdFileName] = useState<string>('Sample_Design_Mockup.psd');
   const [psdWidth, setPsdWidth] = useState<number>(1280);
   const [psdHeight, setPsdHeight] = useState<number>(800);
@@ -991,6 +993,18 @@ opacity: ${(l.opacity / 100).toFixed(2)};${l.colorHex ? `\nbackground-color: ${l
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>Sample</span>
           </button>
+
+          {onNavigateToPsdToHtml && (
+            <button
+              type="button"
+              onClick={onNavigateToPsdToHtml}
+              className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-lg transition-all flex items-center gap-1.5 shadow-md shadow-emerald-900/30 cursor-pointer active:scale-95 border border-emerald-500/40"
+              title="Convert this PSD directly to responsive HTML and CSS"
+            >
+              <Code2 className="w-3.5 h-3.5 text-emerald-200" />
+              <span>Convert to HTML</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -1533,15 +1547,50 @@ opacity: ${(l.opacity / 100).toFixed(2)};${l.colorHex ? `\nbackground-color: ${l
                     </a>
                   </div>
                 )}
+
+                {/* 6. CONVERT FULL PSD TO HTML */}
+                {onNavigateToPsdToHtml && (
+                  <div className="pt-3 border-t border-slate-800">
+                    <button
+                      type="button"
+                      onClick={onNavigateToPsdToHtml}
+                      className="w-full py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 active:scale-98 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50 cursor-pointer border border-emerald-500/40"
+                    >
+                      <Code2 className="w-4 h-4 text-emerald-200" />
+                      <span>Convert Full PSD to HTML</span>
+                    </button>
+                    <p className="text-[10px] text-slate-500 text-center mt-1.5 leading-tight">
+                      Extract all HTML, responsive CSS, color palette & images in 1 click
+                    </p>
+                  </div>
+                )}
               </div>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full text-slate-500 text-center py-10 space-y-2">
+            <div className="flex flex-col items-center justify-center h-full text-slate-500 text-center py-10 space-y-4">
               <Crosshair className="w-8 h-8 text-slate-600" />
-              <p className="text-xs">No layer selected.</p>
-              <p className="text-[11px] text-slate-600">
-                Click any layer on the canvas or tree to inspect CSS, typography, and spacing.
-              </p>
+              <div className="space-y-1">
+                <p className="text-xs text-slate-300 font-semibold">No layer selected.</p>
+                <p className="text-[11px] text-slate-500 max-w-xs">
+                  Click any layer on the canvas or tree to inspect CSS, typography, and spacing.
+                </p>
+              </div>
+
+              {onNavigateToPsdToHtml && (
+                <div className="w-full pt-4 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={onNavigateToPsdToHtml}
+                    className="w-full py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 active:scale-98 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50 cursor-pointer border border-emerald-500/40"
+                  >
+                    <Code2 className="w-4 h-4 text-emerald-200" />
+                    <span>Convert Entire PSD to HTML</span>
+                  </button>
+                  <p className="text-[10px] text-slate-500 text-center mt-1.5 leading-tight">
+                    Full automated export with live HTML/CSS preview
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
