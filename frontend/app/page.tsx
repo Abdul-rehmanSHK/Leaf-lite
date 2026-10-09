@@ -69,6 +69,7 @@ export default function LeafLiteStudioPage() {
   const [activeTab, setActiveTab] = useState<MainTab>('compressor');
   const [previousMainTab, setPreviousMainTab] = useState<MainTab>('compressor');
   const [selectedExtraTool, setSelectedExtraTool] = useState<ExtraTool>('kb_reducer');
+  const [sharedPsdFile, setSharedPsdFile] = useState<File | null>(null);
 
   // File management (up to 10 images)
   const [files, setFiles] = useState<UploadedFileItem[]>([]);
@@ -637,10 +638,18 @@ export default function LeafLiteStudioPage() {
             {activeTab === 'psd_studio' && (
               <PsdTool
                 backendUrl={BACKEND_URL}
-                onNavigateToPsdToHtml={() => switchMainTab('psd_to_html')}
+                onNavigateToPsdToHtml={(file) => {
+                  if (file) setSharedPsdFile(file);
+                  switchMainTab('psd_to_html');
+                }}
               />
             )}
-            {activeTab === 'psd_to_html' && <PsdToHtmlTool backendUrl={BACKEND_URL} />}
+            {activeTab === 'psd_to_html' && (
+              <PsdToHtmlTool
+                backendUrl={BACKEND_URL}
+                initialFile={sharedPsdFile}
+              />
+            )}
           </div>
         </main>
       ) : (

@@ -24,6 +24,7 @@ export interface ClientConversionResult {
   job_id: string;
   psd_name: string;
   dimensions: { width: number; height: number };
+  composite_url?: string;
   detected_sections_count: number;
   extracted_images_count: number;
   primary_color: string;
@@ -266,17 +267,54 @@ export async function convertPsdClientSide(file: File): Promise<ClientConversion
   const fontList = Array.from(fontSet).slice(0, 3);
   if (fontList.length === 0) fontList.push('Inter', 'sans-serif');
 
+  // Extract composite preview for original PSD display
+  let compositeUrl: string | undefined = undefined;
+  try {
+    const compCanvas = psd.canvas || getCompositeCanvas(psd);
+    if (compCanvas) {
+      compositeUrl = compCanvas.toDataURL('image/png');
+    }
+  } catch (err) {
+    console.warn('Client composite generation note:', err);
+  }
+
   // Generate Modern HTML & CSS
   const { htmlCode, cssCode } = generateModernCssBundle(file.name, sections, primaryColor, secondaryColor, fontList);
   const tailwindCode = generateTailwindBundle(file.name, sections, primaryColor, secondaryColor, fontList);
 
-  // Build ZIP using JSZip
+  // Build ZIP using JSZip - wrap in root folder for clean unzipping
+  const folderSlug = `leaf-${sanitizeSlug(file.name.replace(/\.psd$/i, ''))}`;
   const zip = new JSZip();
-  zip.file('index.html', htmlCode);
-  zip.file('tailwind.html', tailwindCode);
-  zip.file('css/style.css', cssCode);
+  const rootFolder = zip.folder(folderSlug);
 
-  const imagesFolder = zip.folder('images');
+  const readmeContent = `# ${file.name.replace(/\.psd$/i, '')} - LeafLite Export
+
+This complete project package was generated from ${file.name} (${docWidth}x${docHeight}px) by LeafLite Studio.
+
+## 📁 Project Structure
+
+- \`index.html\`: Modern semantic HTML5 markup with modular CSS styling.
+- \`tailwind.html\`: Utility-first Tailwind CSS export ready to open in any browser.
+- \`css/style.css\`: Custom stylesheet with CSS variables, typography, and responsive styles.
+- \`images/\`: Extracted WebP images sliced directly from PSD layers.
+
+## 🚀 How to Run & Preview
+
+Open \`index.html\` (Modern CSS) or \`tailwind.html\` (Tailwind CSS) in any web browser!
+
+## 🎨 Design Tokens
+
+- Primary Color: ${primaryColor}
+- Secondary Color: ${secondaryColor}
+- Typography: ${fontList.join(', ')}
+`;
+
+  rootFolder?.file('README.md', readmeContent);
+  rootFolder?.file('index.html', htmlCode);
+  rootFolder?.file('tailwind.html', tailwindCode);
+  rootFolder?.file('css/style.css', cssCode);
+
+  const imagesFolder = rootFolder?.folder('images');
   for (const asset of allAssets) {
     if (asset.blob) {
       imagesFolder?.file(asset.filename, asset.blob);
@@ -299,6 +337,7 @@ export async function convertPsdClientSide(file: File): Promise<ClientConversion
     job_id: `client-${Date.now()}`,
     psd_name: file.name,
     dimensions: { width: docWidth, height: docHeight },
+    composite_url: compositeUrl,
     detected_sections_count: sections.length,
     extracted_images_count: allAssets.length,
     primary_color: primaryColor,

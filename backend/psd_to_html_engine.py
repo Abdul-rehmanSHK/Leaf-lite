@@ -107,20 +107,61 @@ class PsdToHtmlEngine:
         with open(tailwind_html_path, "w", encoding="utf-8") as f:
             f.write(tailwind_code)
 
-        # Create ZIP package
+        # Generate composite raster of the entire PSD for original design preview
+        composite_filename = f"{sanitize_slug(self.psd_path.stem)}_composite.png"
+        composite_path = self.output_dir / composite_filename
+        composite_url = None
+        try:
+            comp = psd.composite()
+            if comp:
+                comp.save(composite_path, format="PNG")
+                composite_url = f"/api/tools/psd-to-html/asset/{self.job_id}/{composite_filename}"
+        except Exception:
+            pass
+
+        # Create ZIP package with root project folder containing all files
+        folder_slug = f"leaf-{sanitize_slug(self.psd_path.stem)}"
         zip_filename = f"{sanitize_slug(self.psd_path.stem)}_html_bundle.zip"
         zip_path = self.output_dir / zip_filename
+
+        readme_content = f"""# {self.psd_path.stem} - LeafLite HTML & Tailwind Export
+
+This complete project package was generated from `{self.psd_path.name}` ({doc_w}x{doc_h}px) by LeafLite Studio.
+
+## 📁 Project Structure
+
+- `index.html`: Modern semantic HTML5 markup with custom CSS link.
+- `tailwind.html`: Utility-first Tailwind CSS export ready to preview in any browser.
+- `css/style.css`: Modular stylesheet with custom properties, responsive design, and transitions.
+- `images/`: High-efficiency WebP raster assets extracted directly from PSD layers.
+
+## 🚀 How to Run & Preview
+
+1. Open `index.html` (Modern CSS) or `tailwind.html` (Tailwind CSS) in any modern web browser.
+2. Or serve locally with any static server:
+   - Python: `python -m http.server 3000`
+   - Node: `npx serve .`
+
+## 🎨 Design Tokens & Palette
+
+- **Primary Color**: `{primary_color}`
+- **Secondary Color**: `{secondary_color}`
+- **Fonts Detected**: {', '.join(self.fonts)}
+"""
+
         with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-            zf.write(index_html_path, arcname="index.html")
-            zf.write(tailwind_html_path, arcname="tailwind.html")
-            zf.write(style_css_path, arcname="css/style.css")
+            zf.writestr(f"{folder_slug}/README.md", readme_content)
+            zf.write(index_html_path, arcname=f"{folder_slug}/index.html")
+            zf.write(tailwind_html_path, arcname=f"{folder_slug}/tailwind.html")
+            zf.write(style_css_path, arcname=f"{folder_slug}/css/style.css")
             for img_file in self.images_dir.glob("*.*"):
-                zf.write(img_file, arcname=f"images/{img_file.name}")
+                zf.write(img_file, arcname=f"{folder_slug}/images/{img_file.name}")
 
         return {
             "status": "SUCCESS",
             "psd_name": self.psd_path.name,
             "dimensions": {"width": doc_w, "height": doc_h},
+            "composite_url": composite_url,
             "detected_sections_count": len(groups_data),
             "extracted_images_count": len(self.extracted_assets),
             "primary_color": primary_color,

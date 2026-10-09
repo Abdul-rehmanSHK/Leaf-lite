@@ -37,7 +37,7 @@ import { readPsd, getCompositeCanvas } from 'ag-psd';
 
 interface PsdToolProps {
   backendUrl: string;
-  onNavigateToPsdToHtml?: () => void;
+  onNavigateToPsdToHtml?: (file?: File) => void;
 }
 
 export interface PsdLayerItem {
@@ -72,6 +72,7 @@ export const PsdTool: React.FC<PsdToolProps> = ({ backendUrl, onNavigateToPsdToH
   const [psdWidth, setPsdWidth] = useState<number>(1280);
   const [psdHeight, setPsdHeight] = useState<number>(800);
   const [compositeUrl, setCompositeUrl] = useState<string | null>(null);
+  const [uploadedPsdFile, setUploadedPsdFile] = useState<File | null>(null);
   const [layers, setLayers] = useState<PsdLayerItem[]>([]);
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
   const [hoveredLayerId, setHoveredLayerId] = useState<string | null>(null);
@@ -365,6 +366,7 @@ export const PsdTool: React.FC<PsdToolProps> = ({ backendUrl, onNavigateToPsdToH
     setIsLoading(true);
     setError(null);
     setPsdFileName(file.name);
+    setUploadedPsdFile(file);
     setOptimizeResult(null);
 
     try {
@@ -997,12 +999,12 @@ opacity: ${(l.opacity / 100).toFixed(2)};${l.colorHex ? `\nbackground-color: ${l
           {onNavigateToPsdToHtml && (
             <button
               type="button"
-              onClick={onNavigateToPsdToHtml}
+              onClick={() => onNavigateToPsdToHtml(uploadedPsdFile || undefined)}
               className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-lg transition-all flex items-center gap-1.5 shadow-md shadow-emerald-900/30 cursor-pointer active:scale-95 border border-emerald-500/40"
-              title="Convert this PSD directly to responsive HTML and CSS"
+              title="Open this PSD in PSD to HTML & Tailwind Studio to export code & assets"
             >
               <Code2 className="w-3.5 h-3.5 text-emerald-200" />
-              <span>Convert to HTML</span>
+              <span>Export to HTML (CSS / Tailwind)</span>
             </button>
           )}
         </div>
@@ -1553,11 +1555,11 @@ opacity: ${(l.opacity / 100).toFixed(2)};${l.colorHex ? `\nbackground-color: ${l
                   <div className="pt-3 border-t border-slate-800">
                     <button
                       type="button"
-                      onClick={onNavigateToPsdToHtml}
+                      onClick={() => onNavigateToPsdToHtml(uploadedPsdFile || undefined)}
                       className="w-full py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 active:scale-98 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50 cursor-pointer border border-emerald-500/40"
                     >
                       <Code2 className="w-4 h-4 text-emerald-200" />
-                      <span>Convert Full PSD to HTML</span>
+                      <span>Export Full PSD to HTML (CSS / Tailwind)</span>
                     </button>
                     <p className="text-[10px] text-slate-500 text-center mt-1.5 leading-tight">
                       Extract all HTML, responsive CSS, color palette & images in 1 click
@@ -1580,11 +1582,11 @@ opacity: ${(l.opacity / 100).toFixed(2)};${l.colorHex ? `\nbackground-color: ${l
                 <div className="w-full pt-4 border-t border-slate-800">
                   <button
                     type="button"
-                    onClick={onNavigateToPsdToHtml}
+                    onClick={() => onNavigateToPsdToHtml(uploadedPsdFile || undefined)}
                     className="w-full py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 active:scale-98 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50 cursor-pointer border border-emerald-500/40"
                   >
                     <Code2 className="w-4 h-4 text-emerald-200" />
-                    <span>Convert Entire PSD to HTML</span>
+                    <span>Export Entire PSD to HTML (CSS / Tailwind)</span>
                   </button>
                   <p className="text-[10px] text-slate-500 text-center mt-1.5 leading-tight">
                     Full automated export with live HTML/CSS preview
