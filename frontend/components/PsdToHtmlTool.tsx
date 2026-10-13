@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import JSZip from 'jszip';
-import { convertPsdClientSide } from '../utils/psdToHtmlClient';
+import { convertPsdClientSide, minifyHtml, minifyCss } from '../utils/psdToHtmlClient';
 import {
   Upload,
   Download,
@@ -30,12 +30,11 @@ import {
   LayoutTemplate,
   ZoomIn,
   ZoomOut,
-  RotateCcw,
-  Ruler,
   Folder,
   FileText,
   Sliders,
-  Sparkle
+  FileUp,
+  RefreshCw
 } from 'lucide-react';
 
 interface PsdToHtmlToolProps {
@@ -74,8 +73,11 @@ interface ConversionResult {
   fonts: string[];
   sections: SectionSummary[];
   html_code: string;
+  html_code_min?: string;
   css_code: string;
+  css_code_min?: string;
   tailwind_code: string;
+  tailwind_code_min?: string;
   assets: ExtractedAsset[];
   zip_download_url?: string;
   zip_filename?: string;
@@ -93,11 +95,16 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initia
   const [exportNotice, setExportNotice] = useState<string | null>(null);
 
   // Workflow tabs and export preferences
-  // Opens PSD first as requested by user!
   const [activeTab, setActiveTab] = useState<ActiveTab>('psd_view');
   const [outputMode, setOutputMode] = useState<OutputMode>('css');
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop');
   const [copiedType, setCopiedType] = useState<string | null>(null);
+
+  // Minification toggle state
+  const [isMinified, setIsMinified] = useState<boolean>(false);
+
+  // Drag and drop state
+  const [isDragOver, setIsDragOver] = useState<boolean>(false);
 
   // Original PSD View controls (Zoom, Pan, Section Pins)
   const [psdZoom, setPsdZoom] = useState<number>(0.65);
@@ -108,25 +115,23 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initia
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const psdViewportRef = useRef<HTMLDivElement>(null);
 
-  // Load sample initially or load forwarded file
+  // When initialFile changes, process it immediately
   useEffect(() => {
     if (initialFile) {
       handleFileUpload(initialFile);
-    } else {
-      loadSampleData();
     }
   }, [initialFile]);
 
   const loadSampleData = async () => {
     setIsLoading(true);
     setError(null);
-    setLoadingStep('Opening Marine Construction PSD (1920 × 9934px)...');
+    setLoadingStep('Opening Marine Construction Reference PSD (1920 × 9934px)...');
 
     try {
       let result: ConversionResult | null = null;
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1800);
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
         const res = await fetch(`${backendUrl}/api/tools/psd-to-html/sample`, {
           method: 'POST',
           signal: controller.signal
@@ -147,19 +152,18 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initia
       }
 
       if (!result) {
-        throw new Error('Could not load PSD template. Please upload a PSD or verify backend.');
+        throw new Error('Could not load sample PSD. Please upload any .psd file to begin.');
       }
 
-      // Ensure composite_url fallback for sample if not set
       if (!result.composite_url) {
         result.composite_url = '/sample_assets/marine_construction_composite.webp';
       }
 
       setData(result);
-      setActiveTab('psd_view'); // Open PSD view first!
+      setActiveTab('psd_view');
     } catch (err: any) {
       console.warn('Sample fetch notice:', err.message);
-      setError(err.message || 'Failed to load PSD');
+      setError(err.message || 'Failed to load reference PSD');
     } finally {
       setIsLoading(false);
       setLoadingStep('');
@@ -174,17 +178,18 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initia
 
     setIsLoading(true);
     setError(null);
-    setLoadingStep(`Opening and parsing ${file.name}...`);
+    setLoadingStep(`Analyzing PSD structure and layers in ${file.name}...`);
 
     let convertedSuccessfully = false;
 
-    // 1. Try local/cloud Python backend first
+    // 1. Try local/cloud Python backend first with 60-second window
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
       const formData = new FormData();
       formData.append('file', file);
 
+      setLoadingStep(`Running high-fidelity Python PSD engine on ${file.name}...`);
       const res = await fetch(`${backendUrl}/api/tools/psd-to-html/convert`, {
         method: 'POST',
         body: formData,
@@ -195,24 +200,24 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initia
       if (res.ok) {
         const result: ConversionResult = await res.json();
         setData(result);
-        setActiveTab('psd_view'); // Show PSD first!
+        setActiveTab('psd_view');
         convertedSuccessfully = true;
       }
     } catch {
-      // Backend not running locally or timeout
+      // Backend not running locally or timed out
     }
 
-    // 2. High-performance Client-Side Fallback (ag-psd WebAssembly & JSZip)
+    // 2. High-performance Client-Side Browser Fallback (ag-psd & WebAssembly)
     if (!convertedSuccessfully) {
       try {
-        setLoadingStep(`Extracting layers, vectors & typography in browser...`);
+        setLoadingStep(`Extracting layers, vectors, typography & WebP assets in browser...`);
         const clientResult = await convertPsdClientSide(file);
         setData(clientResult as unknown as ConversionResult);
-        setActiveTab('psd_view'); // Show PSD first!
+        setActiveTab('psd_view');
         convertedSuccessfully = true;
       } catch (clientErr: any) {
         console.error('Client PSD conversion error:', clientErr);
-        setError(`Failed to open PSD: ${clientErr.message || 'Error parsing layer tree'}`);
+        setError(`Failed to parse PSD: ${clientErr.message || 'Error processing layer tree'}`);
       }
     }
 
@@ -220,10 +225,28 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initia
     setLoadingStep('');
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (droppedFile) {
+      handleFileUpload(droppedFile);
+    }
+  };
+
   const handleTriggerExport = (chosenMode: OutputMode) => {
     setOutputMode(chosenMode);
     setExportNotice(`Exported successfully to ${chosenMode === 'css' ? 'Modern CSS (HTML5 + style.css)' : chosenMode === 'tailwind' ? 'Tailwind CSS' : 'Complete Dual Bundle'}! All files and ZIP package are ready.`);
-    setActiveTab('preview'); // Transition to live code preview
+    setActiveTab('preview');
     setTimeout(() => {
       setExportNotice(null);
     }, 4500);
@@ -247,7 +270,25 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initia
     URL.revokeObjectURL(url);
   };
 
-  // Packages everything into a root folder leaf-[name]/ as requested by the user
+  // Helper to get active code (formatted or minified)
+  const getActiveCode = (tab: 'html' | 'css' | 'tailwind', minified = isMinified): string => {
+    if (!data) return '';
+    if (tab === 'html') {
+      if (outputMode === 'tailwind') {
+        return minified ? (data.tailwind_code_min || minifyHtml(data.tailwind_code)) : data.tailwind_code;
+      }
+      return minified ? (data.html_code_min || minifyHtml(data.html_code)) : data.html_code;
+    }
+    if (tab === 'css') {
+      return minified ? (data.css_code_min || minifyCss(data.css_code)) : data.css_code;
+    }
+    if (tab === 'tailwind') {
+      return minified ? (data.tailwind_code_min || minifyHtml(data.tailwind_code)) : data.tailwind_code;
+    }
+    return '';
+  };
+
+  // Packages everything into a root folder leaf-[name]/
   const handleDownloadZip = async (specificMode?: OutputMode) => {
     if (!data) return;
 
@@ -270,16 +311,23 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initia
       const zip = new JSZip();
       const rootFolder = zip.folder(folderName);
 
+      const htmlFormatted = data.html_code;
+      const htmlMinified = data.html_code_min || minifyHtml(data.html_code);
+      const cssFormatted = data.css_code;
+      const cssMinified = data.css_code_min || minifyCss(data.css_code);
+      const twFormatted = data.tailwind_code;
+      const twMinified = data.tailwind_code_min || minifyHtml(data.tailwind_code);
+
       const readmeContent = `# ${data.psd_name.replace(/\.psd$/i, '')} - LeafLite Export
 
-Exported from **${data.psd_name}** (${data.dimensions.width}×${data.dimensions.height}px) using LeafLite Studio.
+Exported directly from **${data.psd_name}** (${data.dimensions.width}×${data.dimensions.height}px) using LeafLite Studio.
 Selected Export Mode: **${mode.toUpperCase()}**
 
 ## 📁 Package Contents
 
-${mode === 'css' || mode === 'both' ? `- \`index.html\`: Semantic HTML5 document linked to modular styles in \`css/style.css\`.\n- \`css/style.css\`: Custom stylesheet with design tokens, responsive breakpoints, and transitions.` : ''}
-${mode === 'tailwind' ? `- \`index.html\`: Tailwind CSS HTML document with Tailwind utility classes and customized configuration.` : ''}
-${mode === 'both' ? `- \`tailwind.html\`: Alternative Tailwind CSS export for rapid utility prototyping.` : ''}
+${mode === 'css' || mode === 'both' ? `- \`index.html\`: Semantic HTML5 document linked to \`css/style.css\`.\n- \`index.min.html\`: Minified HTML5 production code.\n- \`css/style.css\`: Custom stylesheet with design tokens and responsive breakpoints.\n- \`css/style.min.css\`: Minified stylesheet.` : ''}
+${mode === 'tailwind' ? `- \`index.html\`: Tailwind CSS HTML document with Tailwind utility classes and customized configuration.\n- \`index.min.html\`: Minified Tailwind CSS output.` : ''}
+${mode === 'both' ? `- \`tailwind.html\`: Tailwind CSS export for rapid utility prototyping.\n- \`tailwind.min.html\`: Minified Tailwind CSS output.` : ''}
 - \`images/\`: Extracted and sliced high-efficiency WebP image assets (${data.extracted_images_count} assets).
 
 ## 🚀 How to Run & Preview
@@ -294,7 +342,7 @@ python -m http.server 3000
 npx serve .
 \`\`\`
 
-## 🎨 Design Tokens & Palette
+## 🎨 Extracted Design Tokens
 
 - **Primary Color**: \`${data.primary_color}\`
 - **Secondary Color**: \`${data.secondary_color}\`
@@ -305,15 +353,21 @@ npx serve .
       rootFolder?.file('README.md', readmeContent);
 
       if (mode === 'css') {
-        rootFolder?.file('index.html', data.html_code);
-        rootFolder?.file('css/style.css', data.css_code);
+        rootFolder?.file('index.html', htmlFormatted);
+        rootFolder?.file('index.min.html', htmlMinified);
+        rootFolder?.file('css/style.css', cssFormatted);
+        rootFolder?.file('css/style.min.css', cssMinified);
       } else if (mode === 'tailwind') {
-        rootFolder?.file('index.html', data.tailwind_code);
+        rootFolder?.file('index.html', twFormatted);
+        rootFolder?.file('index.min.html', twMinified);
       } else {
         // 'both'
-        rootFolder?.file('index.html', data.html_code);
-        rootFolder?.file('tailwind.html', data.tailwind_code);
-        rootFolder?.file('css/style.css', data.css_code);
+        rootFolder?.file('index.html', htmlFormatted);
+        rootFolder?.file('index.min.html', htmlMinified);
+        rootFolder?.file('tailwind.html', twFormatted);
+        rootFolder?.file('tailwind.min.html', twMinified);
+        rootFolder?.file('css/style.css', cssFormatted);
+        rootFolder?.file('css/style.min.css', cssMinified);
       }
 
       const imagesFolder = rootFolder?.folder('images');
@@ -375,7 +429,6 @@ npx serve .
       return code;
     } else {
       let code = data.html_code;
-      // Inject CSS into <style> tag so iframe renders self-contained
       const inlineStyle = `<style>\n${data.css_code}\n</style>`;
       code = code.replace('<link rel="stylesheet" href="css/style.css" />', inlineStyle);
 
@@ -404,7 +457,14 @@ npx serve .
   };
 
   return (
-    <div className="w-full flex-1 flex flex-col bg-[#0b0f19] text-slate-100 overflow-hidden font-sans select-none min-h-0 h-full">
+    <div
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={`w-full flex-1 flex flex-col bg-[#0b0f19] text-slate-100 overflow-hidden font-sans select-none min-h-0 h-full relative ${
+        isDragOver ? 'ring-4 ring-emerald-500/50 bg-[#0e1628]' : ''
+      }`}
+    >
       {/* ========================================================================= */}
       {/* 1. TOP APP BAR                                                            */}
       {/* ========================================================================= */}
@@ -418,7 +478,7 @@ npx serve .
               <span className="text-sm font-bold text-white tracking-tight">PSD to HTML & Tailwind Studio</span>
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center gap-1">
                 <Flame className="w-3 h-3 text-emerald-400" />
-                Trained Engine
+                Universal Engine
               </span>
               {data && (
                 <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded-full border border-cyan-800">
@@ -427,7 +487,7 @@ npx serve .
               )}
             </div>
             <span className="text-[11px] text-slate-400">
-              {data ? data.psd_name : 'Open PSD first, select CSS or Tailwind option, and export complete ZIP folder'}
+              {data ? data.psd_name : 'Upload any PSD to extract layers, typography, graphics, and generate clean HTML & Tailwind'}
             </span>
           </div>
         </div>
@@ -440,22 +500,22 @@ npx serve .
             onClick={loadSampleData}
             disabled={isLoading}
             className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-700 cursor-pointer disabled:opacity-50"
-            title="Reload the 1920×9934px Marine Construction training PSD"
+            title="Load the Marine Construction training reference mockup"
           >
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             <span>Load Reference PSD</span>
           </button>
 
-          {/* Full Live Website Button */}
+          {/* Reference Site Preview Link */}
           <a
             href="/demo-marine-construction/index.html"
             target="_blank"
             rel="noopener noreferrer"
             className="px-3 py-1.5 bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 border border-cyan-700/60 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer no-underline"
-            title="Open the complete reference site in a new tab"
+            title="Open the complete human-coded reference demo site"
           >
             <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Reference Preview</span>
+            <span>Reference Demo</span>
           </a>
 
           {/* Upload New PSD Button */}
@@ -466,7 +526,7 @@ npx serve .
             className="px-3.5 py-1.5 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white rounded-lg text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-95"
           >
             <Upload className="w-3.5 h-3.5" />
-            <span>Open PSD File</span>
+            <span>Open Any PSD</span>
           </button>
 
           <input
@@ -492,12 +552,12 @@ npx serve .
             <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
             <span className="font-semibold">{loadingStep || 'Processing PSD...'}</span>
           </div>
-          <span className="text-[11px] text-cyan-400/80">Slicing images to WebP & analyzing layout geometry</span>
+          <span className="text-[11px] text-cyan-400/80">Extracting layers, vectors & typography into clean code</span>
         </div>
       )}
 
       {exportNotice && (
-        <div className="w-full bg-emerald-950/90 border-b border-emerald-700 px-4 py-2 flex items-center justify-between text-xs text-emerald-200 animate-fadeIn">
+        <div className="w-full bg-emerald-950/90 border-b border-emerald-700 px-4 py-2 flex items-center justify-between text-xs text-emerald-200">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span className="font-semibold">{exportNotice}</span>
@@ -529,204 +589,206 @@ npx serve .
       )}
 
       {/* ========================================================================= */}
-      {/* 3. WORKFLOW NAVIGATION TABS                                               */}
+      {/* 3. WORKFLOW NAVIGATION TABS (Shown when PSD data is loaded)                */}
       {/* ========================================================================= */}
-      <div className="w-full bg-[#0e1628] border-b border-slate-800 px-4 py-2 flex flex-wrap items-center justify-between gap-3 shrink-0">
-        {/* Main Tab Controls: PSD First -> Live Preview -> Code Readers */}
-        <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
-          {/* TAB 1: ORIGINAL PSD DESIGN (OPENED FIRST!) */}
-          <button
-            type="button"
-            onClick={() => setActiveTab('psd_view')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'psd_view'
-                ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800'
-            }`}
-            title="Inspect the original PSD design canvas first"
-          >
-            <Palette className="w-3.5 h-3.5 text-cyan-300" />
-            <span>1. Original PSD Visual</span>
-            <span className="bg-cyan-900/80 text-cyan-200 text-[10px] px-1.5 py-0.2 rounded-full border border-cyan-700">
-              Source
-            </span>
-          </button>
-
-          {/* TAB 2: LIVE PREVIEW */}
-          <button
-            type="button"
-            onClick={() => setActiveTab('preview')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'preview'
-                ? 'bg-cyan-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>2. Live Preview</span>
-          </button>
-
-          {/* TAB 3: READ HTML CODE */}
-          <button
-            type="button"
-            onClick={() => setActiveTab('html')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'html'
-                ? 'bg-cyan-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <FileCode className="w-3.5 h-3.5" />
-            <span>Read HTML</span>
-          </button>
-
-          {/* TAB 4: READ CSS CODE */}
-          <button
-            type="button"
-            onClick={() => setActiveTab('css')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'css'
-                ? 'bg-cyan-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <Code2 className="w-3.5 h-3.5" />
-            <span>Read CSS</span>
-          </button>
-
-          {/* TAB 5: READ TAILWIND CODE */}
-          <button
-            type="button"
-            onClick={() => setActiveTab('tailwind')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'tailwind'
-                ? 'bg-emerald-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <FileText className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Read Tailwind</span>
-          </button>
-
-          {/* TAB 6: ASSETS */}
-          <button
-            type="button"
-            onClick={() => setActiveTab('assets')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'assets'
-                ? 'bg-cyan-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <ImageIcon className="w-3.5 h-3.5" />
-            <span>Assets ({data?.extracted_images_count || 0})</span>
-          </button>
-
-          {/* TAB 7: SECTIONS */}
-          <button
-            type="button"
-            onClick={() => setActiveTab('sections')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'sections'
-                ? 'bg-cyan-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span>Sections ({data?.detected_sections_count || 0})</span>
-          </button>
-        </div>
-
-        {/* Quick Export Mode Selector */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 text-xs">
+      {data && (
+        <div className="w-full bg-[#0e1628] border-b border-slate-800 px-4 py-2 flex flex-wrap items-center justify-between gap-3 shrink-0">
+          {/* Main Tab Controls: PSD First -> Live Preview -> Code Readers */}
+          <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
+            {/* TAB 1: ORIGINAL PSD DESIGN */}
             <button
               type="button"
-              onClick={() => setOutputMode('css')}
-              className={`px-2.5 py-1 rounded flex items-center gap-1 font-bold transition-all cursor-pointer ${
-                outputMode === 'css'
-                  ? 'bg-cyan-600 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-white'
+              onClick={() => setActiveTab('psd_view')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'psd_view'
+                  ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-md'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
               }`}
-              title="Modern CSS Output"
+              title="Inspect the original PSD design canvas visual"
             >
-              <span>CSS</span>
+              <Palette className="w-3.5 h-3.5 text-cyan-300" />
+              <span>1. Original PSD Visual</span>
+              <span className="bg-cyan-900/80 text-cyan-200 text-[10px] px-1.5 py-0.2 rounded-full border border-cyan-700">
+                Source
+              </span>
             </button>
+
+            {/* TAB 2: LIVE PREVIEW */}
             <button
               type="button"
-              onClick={() => setOutputMode('tailwind')}
-              className={`px-2.5 py-1 rounded flex items-center gap-1 font-bold transition-all cursor-pointer ${
-                outputMode === 'tailwind'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-white'
+              onClick={() => setActiveTab('preview')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'preview'
+                  ? 'bg-cyan-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
-              title="Tailwind CSS Output"
             >
-              <span>Tailwind</span>
+              <Eye className="w-3.5 h-3.5" />
+              <span>2. Live Preview</span>
             </button>
+
+            {/* TAB 3: READ HTML CODE */}
             <button
               type="button"
-              onClick={() => setOutputMode('both')}
-              className={`px-2.5 py-1 rounded flex items-center gap-1 font-bold transition-all cursor-pointer ${
-                outputMode === 'both'
-                  ? 'bg-purple-600 text-white shadow-xs'
-                  : 'text-slate-400 hover:text-white'
+              onClick={() => setActiveTab('html')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'html'
+                  ? 'bg-cyan-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
               }`}
-              title="Dual Bundle (CSS + Tailwind)"
             >
-              <span>Both</span>
+              <FileCode className="w-3.5 h-3.5" />
+              <span>Read HTML</span>
+            </button>
+
+            {/* TAB 4: READ CSS CODE */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('css')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'css'
+                  ? 'bg-cyan-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <Code2 className="w-3.5 h-3.5" />
+              <span>Read CSS</span>
+            </button>
+
+            {/* TAB 5: READ TAILWIND CODE */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('tailwind')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'tailwind'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Read Tailwind</span>
+            </button>
+
+            {/* TAB 6: ASSETS */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('assets')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'assets'
+                  ? 'bg-cyan-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <ImageIcon className="w-3.5 h-3.5" />
+              <span>Assets ({data?.extracted_images_count || 0})</span>
+            </button>
+
+            {/* TAB 7: SECTIONS */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('sections')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'sections'
+                  ? 'bg-cyan-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Sections ({data?.detected_sections_count || 0})</span>
             </button>
           </div>
 
-          {activeTab === 'preview' && (
+          {/* Quick Output Selector & Device Toggles */}
+          <div className="flex items-center gap-2">
             <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 text-xs">
               <button
                 type="button"
-                onClick={() => setDeviceMode('desktop')}
-                className={`p-1.5 rounded ${deviceMode === 'desktop' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}
-                title="Desktop"
+                onClick={() => setOutputMode('css')}
+                className={`px-2.5 py-1 rounded flex items-center gap-1 font-bold transition-all cursor-pointer ${
+                  outputMode === 'css'
+                    ? 'bg-cyan-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Modern CSS Output"
               >
-                <Monitor className="w-3.5 h-3.5" />
+                <span>CSS</span>
               </button>
               <button
                 type="button"
-                onClick={() => setDeviceMode('laptop')}
-                className={`p-1.5 rounded ${deviceMode === 'laptop' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}
-                title="Laptop (1024px)"
+                onClick={() => setOutputMode('tailwind')}
+                className={`px-2.5 py-1 rounded flex items-center gap-1 font-bold transition-all cursor-pointer ${
+                  outputMode === 'tailwind'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Tailwind CSS Output"
               >
-                <Laptop className="w-3.5 h-3.5" />
+                <span>Tailwind</span>
               </button>
               <button
                 type="button"
-                onClick={() => setDeviceMode('tablet')}
-                className={`p-1.5 rounded ${deviceMode === 'tablet' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}
-                title="Tablet (768px)"
+                onClick={() => setOutputMode('both')}
+                className={`px-2.5 py-1 rounded flex items-center gap-1 font-bold transition-all cursor-pointer ${
+                  outputMode === 'both'
+                    ? 'bg-purple-600 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Dual Bundle (CSS + Tailwind)"
               >
-                <Tablet className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setDeviceMode('mobile')}
-                className={`p-1.5 rounded ${deviceMode === 'mobile' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}
-                title="Mobile (375px)"
-              >
-                <Smartphone className="w-3.5 h-3.5" />
+                <span>Both</span>
               </button>
             </div>
-          )}
 
-          {activeTab === 'preview' && (
-            <button
-              type="button"
-              onClick={handleOpenInNewTab}
-              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors cursor-pointer"
-              title="Open Live Preview in New Window"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-            </button>
-          )}
+            {activeTab === 'preview' && (
+              <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setDeviceMode('desktop')}
+                  className={`p-1.5 rounded ${deviceMode === 'desktop' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}
+                  title="Desktop (100%)"
+                >
+                  <Monitor className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeviceMode('laptop')}
+                  className={`p-1.5 rounded ${deviceMode === 'laptop' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}
+                  title="Laptop (1024px)"
+                >
+                  <Laptop className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeviceMode('tablet')}
+                  className={`p-1.5 rounded ${deviceMode === 'tablet' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}
+                  title="Tablet (768px)"
+                >
+                  <Tablet className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeviceMode('mobile')}
+                  className={`p-1.5 rounded ${deviceMode === 'mobile' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'}`}
+                  title="Mobile (375px)"
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'preview' && (
+              <button
+                type="button"
+                onClick={handleOpenInNewTab}
+                className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors cursor-pointer"
+                title="Open Live Preview in New Window"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ========================================================================= */}
       {/* 4. MAIN STUDIO WORKSPACE                                                  */}
@@ -734,17 +796,119 @@ npx serve .
       <div className="flex-1 w-full flex flex-col lg:flex-row overflow-hidden min-h-0">
         {/* Main Stage (Center) */}
         <div className="flex-1 flex flex-col min-w-0 bg-[#090d16] border-r border-slate-800 overflow-hidden">
-          {/* Subheader / Toolbar for Code Tabs */}
+          {/* EMPTY STATE: WHEN NO PSD IS YET LOADED */}
+          {!data && !isLoading && (
+            <div className="flex-1 w-full h-full flex flex-col items-center justify-center p-6 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px] text-center">
+              <div className="max-w-xl w-full bg-slate-900/90 border border-slate-800 rounded-3xl p-8 sm:p-10 shadow-2xl flex flex-col items-center space-y-6 backdrop-blur-md">
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-cyan-600/30 to-emerald-500/30 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-xl shadow-cyan-950/50">
+                  <FileUp className="w-10 h-10" />
+                </div>
+
+                <div className="space-y-2">
+                  <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                    Upload Any Photoshop (.psd) File
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+                    Extracts all layers, text, typography, vector shapes, and graphics. Generates both Modern CSS and Tailwind HTML with formatted and minified code options.
+                  </p>
+                </div>
+
+                {/* Main Action Upload Button */}
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-950/40 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>Choose PSD File</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={loadSampleData}
+                    className="w-full sm:w-auto px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-xl border border-slate-700 flex items-center justify-center gap-2 cursor-pointer transition-all"
+                  >
+                    <Sparkles className="w-4 h-4 text-cyan-400" />
+                    <span>Load Reference PSD (Example)</span>
+                  </button>
+                </div>
+
+                {/* Features Badges */}
+                <div className="pt-4 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-3 gap-3 w-full text-[11px] text-slate-400 text-left font-medium">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>Full Layer Tree</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>Modern CSS & Tailwind</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>Minified & Minimized Code</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>Sliced WebP Graphics</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>Extracted Palette & Fonts</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span>Complete ZIP Package</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Subheader / Toolbar for Code Tabs (When data is present) */}
           {(activeTab === 'html' || activeTab === 'css' || activeTab === 'tailwind') && data && (
-            <div className="w-full bg-[#0d1322] border-b border-slate-800 px-4 py-1.5 flex items-center justify-between text-xs">
-              <span className="font-mono text-slate-400">
-                {activeTab === 'html' ? (outputMode === 'tailwind' ? 'tailwind.html' : 'index.html') : activeTab === 'css' ? 'css/style.css' : 'tailwind.html'}
-              </span>
+            <div className="w-full bg-[#0d1322] border-b border-slate-800 px-4 py-1.5 flex flex-wrap items-center justify-between gap-2 text-xs shrink-0">
               <div className="flex items-center gap-2">
+                <span className="font-mono text-slate-300 font-bold">
+                  {activeTab === 'html'
+                    ? (outputMode === 'tailwind' ? (isMinified ? 'tailwind.min.html' : 'tailwind.html') : (isMinified ? 'index.min.html' : 'index.html'))
+                    : activeTab === 'css'
+                    ? (isMinified ? 'css/style.min.css' : 'css/style.css')
+                    : (isMinified ? 'tailwind.min.html' : 'tailwind.html')}
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">
+                  {getActiveCode(activeTab).split('\n').length} lines &bull; {(new Blob([getActiveCode(activeTab)]).size / 1024).toFixed(1)} KB
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Formatted vs Minified Segmented Toggle */}
+                <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setIsMinified(false)}
+                    className={`px-2.5 py-1 rounded font-semibold transition-all cursor-pointer ${
+                      !isMinified ? 'bg-cyan-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Formatted
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsMinified(true)}
+                    className={`px-2.5 py-1 rounded font-semibold transition-all cursor-pointer flex items-center gap-1 ${
+                      isMinified ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Flame className="w-3 h-3 text-emerald-300" />
+                    <span>Minified</span>
+                  </button>
+                </div>
+
                 <button
                   type="button"
                   onClick={() => {
-                    const code = activeTab === 'html' ? (outputMode === 'tailwind' ? data.tailwind_code : data.html_code) : activeTab === 'css' ? data.css_code : data.tailwind_code;
+                    const code = getActiveCode(activeTab);
                     handleCopy(code, activeTab);
                   }}
                   className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
@@ -756,13 +920,18 @@ npx serve .
                 <button
                   type="button"
                   onClick={() => {
+                    const code = getActiveCode(activeTab);
                     if (activeTab === 'html') {
-                      const code = outputMode === 'tailwind' ? data.tailwind_code : data.html_code;
-                      handleDownloadFile(code, outputMode === 'tailwind' ? 'tailwind.html' : 'index.html', 'text/html');
+                      const fname = outputMode === 'tailwind'
+                        ? (isMinified ? 'tailwind.min.html' : 'tailwind.html')
+                        : (isMinified ? 'index.min.html' : 'index.html');
+                      handleDownloadFile(code, fname, 'text/html');
                     } else if (activeTab === 'css') {
-                      handleDownloadFile(data.css_code, 'style.css', 'text/css');
+                      const fname = isMinified ? 'style.min.css' : 'style.css';
+                      handleDownloadFile(code, fname, 'text/css');
                     } else {
-                      handleDownloadFile(data.tailwind_code, 'tailwind.html', 'text/html');
+                      const fname = isMinified ? 'tailwind.min.html' : 'tailwind.html';
+                      handleDownloadFile(code, fname, 'text/html');
                     }
                   }}
                   className="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
@@ -789,6 +958,9 @@ npx serve .
                   <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded-full border border-cyan-800">
                     {data.dimensions.width} × {data.dimensions.height} px
                   </span>
+                  <span className="text-[10px] font-mono text-slate-300 bg-slate-800 px-2 py-0.5 rounded-full">
+                    {data.detected_sections_count} Sections
+                  </span>
                 </div>
 
                 {/* Canvas Presets & Zoom Controls */}
@@ -798,7 +970,7 @@ npx serve .
                       type="button"
                       onClick={() => setPsdZoom(0.65)}
                       className="px-2 py-1 hover:bg-slate-800 rounded text-slate-300 hover:text-cyan-400 font-semibold cursor-pointer"
-                      title="Fit PSD width to screen (Best for web designs)"
+                      title="Fit PSD width to screen"
                     >
                       Fit Width
                     </button>
@@ -887,7 +1059,7 @@ npx serve .
 
                   {/* Section Markers Overlay */}
                   {showSectionPins && data.sections.map((sec, idx) => {
-                    const stepY = ((idx + 0.5) / data.sections.length) * 100;
+                    const stepY = ((idx + 0.5) / Math.max(1, data.sections.length)) * 100;
                     return (
                       <div
                         key={idx}
@@ -911,7 +1083,7 @@ npx serve .
                 </div>
               </div>
 
-              {/* Dedicated Bottom Export Banner (Direct Action) */}
+              {/* Dedicated Bottom Export Banner */}
               <div className="w-full bg-[#111827]/95 border-t border-slate-800 p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="flex flex-col">
@@ -920,7 +1092,7 @@ npx serve .
                       Select Export Option:
                     </span>
                     <span className="text-[11px] text-slate-400">
-                      Choose Modern CSS, Tailwind CSS, or Both, then click Export to read code & download ZIP.
+                      Choose Modern CSS, Tailwind CSS, or Both, then click Export to view & download code.
                     </span>
                   </div>
                 </div>
@@ -985,7 +1157,7 @@ npx serve .
           {/* ===================================================================== */}
           {/* TAB 2: LIVE PREVIEW IFRAME                                            */}
           {/* ===================================================================== */}
-          {activeTab === 'preview' && (
+          {activeTab === 'preview' && data && (
             <div className="flex-1 w-full h-full overflow-auto flex items-start justify-center p-2 sm:p-4 bg-slate-950/80">
               <div
                 className="bg-white rounded-lg shadow-2xl overflow-hidden transition-all duration-300 border border-slate-700 flex flex-col"
@@ -1012,11 +1184,11 @@ npx serve .
           {activeTab === 'html' && data && (
             <div className="flex-1 w-full h-full overflow-auto p-4 font-mono text-xs text-slate-200 bg-[#080c14]">
               <div className="mb-3 flex items-center justify-between text-slate-400 text-[11px] pb-2 border-b border-slate-800">
-                <span>📄 Document: {outputMode === 'tailwind' ? 'tailwind.html (Tailwind CSS)' : 'index.html (Modern CSS)'}</span>
-                <span>{(outputMode === 'tailwind' ? data.tailwind_code.split('\n').length : data.html_code.split('\n').length)} Lines</span>
+                <span>📄 Document: {outputMode === 'tailwind' ? (isMinified ? 'tailwind.min.html' : 'tailwind.html') : (isMinified ? 'index.min.html' : 'index.html')}</span>
+                <span>{getActiveCode('html').split('\n').length} Lines {isMinified ? '(Minified / Minimized Extract)' : '(Formatted Code)'}</span>
               </div>
               <pre className="p-4 bg-slate-950 rounded-xl border border-slate-800 overflow-x-auto select-text leading-relaxed">
-                <code>{outputMode === 'tailwind' ? data.tailwind_code : data.html_code}</code>
+                <code>{getActiveCode('html')}</code>
               </pre>
             </div>
           )}
@@ -1027,11 +1199,11 @@ npx serve .
           {activeTab === 'css' && data && (
             <div className="flex-1 w-full h-full overflow-auto p-4 font-mono text-xs text-slate-200 bg-[#080c14]">
               <div className="mb-3 flex items-center justify-between text-slate-400 text-[11px] pb-2 border-b border-slate-800">
-                <span>🎨 Stylesheet: css/style.css (Custom BEM & CSS Variables)</span>
-                <span>{data.css_code.split('\n').length} Lines</span>
+                <span>🎨 Stylesheet: {isMinified ? 'css/style.min.css' : 'css/style.css'}</span>
+                <span>{getActiveCode('css').split('\n').length} Lines {isMinified ? '(Minified / Minimized)' : '(Formatted)'}</span>
               </div>
               <pre className="p-4 bg-slate-950 rounded-xl border border-slate-800 overflow-x-auto select-text leading-relaxed">
-                <code>{data.css_code}</code>
+                <code>{getActiveCode('css')}</code>
               </pre>
             </div>
           )}
@@ -1042,11 +1214,11 @@ npx serve .
           {activeTab === 'tailwind' && data && (
             <div className="flex-1 w-full h-full overflow-auto p-4 font-mono text-xs text-slate-200 bg-[#080c14]">
               <div className="mb-3 flex items-center justify-between text-slate-400 text-[11px] pb-2 border-b border-slate-800">
-                <span>🌊 Document: tailwind.html (Tailwind CSS Utilities + Config)</span>
-                <span>{data.tailwind_code.split('\n').length} Lines</span>
+                <span>🌊 Document: {isMinified ? 'tailwind.min.html' : 'tailwind.html'} (Tailwind Utilities)</span>
+                <span>{getActiveCode('tailwind').split('\n').length} Lines {isMinified ? '(Minified / Minimized)' : '(Formatted)'}</span>
               </div>
               <pre className="p-4 bg-slate-950 rounded-xl border border-slate-800 overflow-x-auto select-text leading-relaxed">
-                <code>{data.tailwind_code}</code>
+                <code>{getActiveCode('tailwind')}</code>
               </pre>
             </div>
           )}
@@ -1123,7 +1295,7 @@ npx serve .
                   Geometric Section Analysis ({data.sections.length} Sections)
                 </h3>
                 <p className="text-[11px] text-slate-400">
-                  Semantic roles automatically identified by the trained PSD structural engine.
+                  Semantic roles automatically identified by the structural PSD engine.
                 </p>
               </div>
 
@@ -1162,10 +1334,10 @@ npx serve .
         {/* ======================================================================= */}
         {/* RIGHT DOCK: PROJECT INFO, EXPORT OPTIONS & COMPLETE ZIP DOWNLOAD        */}
         {/* ======================================================================= */}
-        <div className="w-full lg:w-84 bg-[#0e1422] border-t lg:border-t-0 lg:border-l border-slate-800 p-4 flex flex-col justify-between overflow-y-auto shrink-0 space-y-5">
-          <div className="space-y-5">
-            {/* 1. Complete ZIP Package Card (Root Folder Nested) */}
-            {data && (
+        {data && (
+          <div className="w-full lg:w-84 bg-[#0e1422] border-t lg:border-t-0 lg:border-l border-slate-800 p-4 flex flex-col justify-between overflow-y-auto shrink-0 space-y-5">
+            <div className="space-y-5">
+              {/* 1. Complete ZIP Package Card */}
               <div className="bg-gradient-to-br from-emerald-950/70 via-cyan-950/50 to-slate-900 border border-emerald-700/60 rounded-2xl p-4 space-y-3 shadow-lg">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
@@ -1173,12 +1345,12 @@ npx serve .
                     Complete Project ZIP
                   </span>
                   <span className="text-[10px] font-mono text-emerald-400 bg-emerald-900/60 px-2 py-0.5 rounded-full border border-emerald-800 font-bold">
-                    ZIP Folder
+                    Clean Archive
                   </span>
                 </div>
 
                 <p className="text-[11px] text-slate-300 leading-relaxed">
-                  Extracts a complete root folder <code className="text-emerald-300">leaf-{data.psd_name.replace(/\.psd$/i, '').toLowerCase().replace(/[^a-z0-9]/g, '-')}/</code> containing all files, folders, and WebP assets:
+                  Extracts clean project folder <code className="text-emerald-300">leaf-{data.psd_name.replace(/\.psd$/i, '').toLowerCase().replace(/[^a-z0-9]/g, '-')}/</code> with formatted & minified code:
                 </p>
 
                 <div className="bg-slate-950/90 rounded-lg p-2.5 font-mono text-[10px] text-slate-300 space-y-1 border border-slate-800">
@@ -1186,9 +1358,9 @@ npx serve .
                     <Folder className="w-3 h-3" />
                     <span>leaf-{data.psd_name.replace(/\.psd$/i, '').toLowerCase().replace(/[^a-z0-9]/g, '-')}/</span>
                   </div>
-                  <div className="pl-3 text-slate-400">├── index.html {outputMode === 'css' ? '(Modern CSS)' : outputMode === 'tailwind' ? '(Tailwind)' : '(CSS)'}</div>
-                  {outputMode === 'both' && <div className="pl-3 text-slate-400">├── tailwind.html (Tailwind)</div>}
-                  {(outputMode === 'css' || outputMode === 'both') && <div className="pl-3 text-slate-400">├── css/style.css</div>}
+                  <div className="pl-3 text-slate-400">├── index.html & index.min.html</div>
+                  {outputMode === 'both' && <div className="pl-3 text-slate-400">├── tailwind.html & tailwind.min.html</div>}
+                  {(outputMode === 'css' || outputMode === 'both') && <div className="pl-3 text-slate-400">├── css/style.css & style.min.css</div>}
                   <div className="pl-3 text-slate-400">├── images/ ({data.extracted_images_count} WebP files)</div>
                   <div className="pl-3 text-slate-400">└── README.md (Docs & Tokens)</div>
                 </div>
@@ -1224,10 +1396,8 @@ npx serve .
                   </button>
                 </div>
               </div>
-            )}
 
-            {/* 2. Export Configuration Card */}
-            {data && (
+              {/* 2. Export Configuration Card */}
               <div className="space-y-3 bg-slate-900/80 border border-slate-800 rounded-xl p-3.5">
                 <span className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                   <Sliders className="w-3.5 h-3.5 text-cyan-400" />
@@ -1305,14 +1475,12 @@ npx serve .
                   </label>
                 </div>
               </div>
-            )}
 
-            {/* 3. Design Tokens & Palette */}
-            {data && (
+              {/* 3. Design Tokens & Palette */}
               <div className="space-y-3 bg-slate-900/80 border border-slate-800 rounded-xl p-3.5">
                 <span className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                   <Palette className="w-3.5 h-3.5 text-cyan-400" />
-                  Design Tokens
+                  Extracted Design Tokens
                 </span>
 
                 <div className="space-y-2">
@@ -1347,30 +1515,13 @@ npx serve .
                   </div>
                 </div>
               </div>
-            )}
+            </div>
 
-            {/* 4. Training Engine Reference Card */}
-            <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-3.5 space-y-2 text-xs">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                Ready & Trained Engine
-              </span>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
-                Trained and calibrated with <strong>Marine Construction Homepage</strong> human-coded reference:
-              </p>
-              <ul className="text-[10px] text-slate-400 space-y-1 list-disc list-inside">
-                <li>Automatic PSD design preview on open</li>
-                <li>1-click option to export in CSS or Tailwind</li>
-                <li>Live syntax-highlighted code readers</li>
-                <li>Complete ZIP archive with clean root directory</li>
-              </ul>
+            <div className="text-[10px] text-slate-500 text-center pt-4 border-t border-slate-800">
+              LeafLite Studio &bull; Universal PSD to HTML & Tailwind Engine
             </div>
           </div>
-
-          <div className="text-[10px] text-slate-500 text-center pt-4 border-t border-slate-800">
-            LeafLite Studio &bull; High-Performance PSD to HTML Engine
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
