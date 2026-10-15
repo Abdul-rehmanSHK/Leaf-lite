@@ -475,7 +475,7 @@ function generateMeasuredCssBundle(
 ): { htmlCode: string; cssCode: string } {
   const title = escapeMarkup(psdName.replace(/\.psd$/i, ''));
   const children = layers.map((layer) => {
-    const bounds = `left:${(layer.x / docWidth * 100).toFixed(5)}%;top:${(layer.y / docWidth * 100).toFixed(5)}%;width:${(layer.width / docWidth * 100).toFixed(5)}%;height:${(layer.height / docWidth * 100).toFixed(5)}%;`;
+    const bounds = `left:${(layer.x / docWidth * 100).toFixed(5)}%;top:${(layer.y / docHeight * 100).toFixed(5)}%;width:${(layer.width / docWidth * 100).toFixed(5)}%;height:${(layer.height / docHeight * 100).toFixed(5)}%;`;
     if (layer.kind === 'text') {
       const family = escapeMarkup(layer.font_family || 'Inter');
       const style = `${bounds}font-family:'${family}',sans-serif;font-size:${((layer.font_size || 16) / docWidth * 100).toFixed(5)}cqw;font-weight:${layer.font_weight || 400};color:${layer.color || '#1e293b'};white-space:pre-wrap;`;

@@ -386,9 +386,9 @@ Open `index.html` (Modern CSS) or `tailwind.html` (Tailwind CSS) directly in any
         nodes = []
         for index, layer in enumerate(self.measured_layers):
             x = layer["x"] / doc_w * 100
-            y = layer["y"] / doc_w * 100
+            y = layer["y"] / doc_h * 100
             width = layer["width"] / doc_w * 100
-            height = layer["height"] / doc_w * 100
+            height = layer["height"] / doc_h * 100
             pos = f"left:{x:.5f}%;top:{y:.5f}%;width:{width:.5f}%;height:{height:.5f}%;"
             if layer["kind"] == "text":
                 font_size = layer["font_size"] / doc_w * 100
