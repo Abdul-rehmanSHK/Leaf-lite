@@ -834,16 +834,17 @@ async def api_psd_to_html_sample():
         try:
             with open(cached_json, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            LOCAL_JOBS[job_id] = {
-                "status": "SUCCESS",
-                "output_path": str(zip_path),
-                "download_filename": zip_path.name
-            }
-            return {
-                "job_id": job_id,
-                "zip_download_url": f"/download/{job_id}",
-                **data
-            }
+            if data.get("layout_mode") == "measured-layers":
+                LOCAL_JOBS[job_id] = {
+                    "status": "SUCCESS",
+                    "output_path": str(zip_path),
+                    "download_filename": zip_path.name
+                }
+                return {
+                    "job_id": job_id,
+                    "zip_download_url": f"/download/{job_id}",
+                    **data
+                }
         except Exception:
             pass
 

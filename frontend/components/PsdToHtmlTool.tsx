@@ -60,6 +60,23 @@ interface SectionSummary {
   buttons_count: number;
 }
 
+interface MeasuredLayer {
+  name: string;
+  kind: 'text' | 'image';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  space_right?: number | null;
+  space_below?: number | null;
+  text?: string;
+  font_family?: string;
+  font_size?: number;
+  font_weight?: number;
+  color?: string;
+  letter_spacing?: number;
+}
+
 interface ConversionResult {
   job_id: string;
   psd_name: string;
@@ -72,6 +89,7 @@ interface ConversionResult {
   color_palette: string[];
   fonts: string[];
   sections: SectionSummary[];
+  measured_layers?: MeasuredLayer[];
   html_code: string;
   html_code_min?: string;
   css_code: string;
@@ -84,7 +102,7 @@ interface ConversionResult {
 }
 
 type DeviceMode = 'desktop' | 'laptop' | 'tablet' | 'mobile';
-type ActiveTab = 'psd_view' | 'preview' | 'html' | 'css' | 'tailwind' | 'assets' | 'sections';
+type ActiveTab = 'psd_view' | 'preview' | 'html' | 'css' | 'tailwind' | 'assets' | 'sections' | 'measurements';
 type OutputMode = 'css' | 'tailwind' | 'both';
 
 export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initialFile }) => {
@@ -145,14 +163,7 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initia
       }
 
       if (!result) {
-        const staticRes = await fetch('/sample_psd_data.json');
-        if (staticRes.ok) {
-          result = await staticRes.json();
-        }
-      }
-
-      if (!result) {
-        throw new Error('Could not load sample PSD. Please upload any .psd file to begin.');
+        throw new Error('Could not load the reference PSD. Start the backend or open a PSD file to continue.');
       }
 
       if (!result.composite_url) {
@@ -478,7 +489,7 @@ npx serve .
               <span className="text-sm font-bold text-white tracking-tight">PSD to HTML & Tailwind Studio</span>
               <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center gap-1">
                 <Flame className="w-3 h-3 text-emerald-400" />
-                Universal Engine
+                Measured Layer Layout
               </span>
               {data && (
                 <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded-full border border-cyan-800">
@@ -487,7 +498,7 @@ npx serve .
               )}
             </div>
             <span className="text-[11px] text-slate-400">
-              {data ? data.psd_name : 'Upload any PSD to extract layers, typography, graphics, and generate clean HTML & Tailwind'}
+              {data ? data.psd_name : 'Open a PSD to inspect layer bounds, typography, spacing, and export a matching layout'}
             </span>
           </div>
         </div>
@@ -695,6 +706,19 @@ npx serve .
             >
               <Layers className="w-3.5 h-3.5" />
               <span>Sections ({data?.detected_sections_count || 0})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('measurements')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'measurements'
+                  ? 'bg-cyan-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              <span>Measurements ({data?.measured_layers?.length || 0})</span>
             </button>
           </div>
 
@@ -1329,6 +1353,45 @@ npx serve .
               ))}
             </div>
           )}
+
+          {activeTab === 'measurements' && data && (
+            <div className="flex-1 w-full h-full overflow-auto p-4 bg-[#080c14]">
+              <div className="mb-3">
+                <h3 className="text-sm font-bold text-white">Measured PSD layers</h3>
+                <p className="text-xs text-slate-400">Pixel bounds are taken from the PSD layer data and used in the exported layout.</p>
+              </div>
+              {data.measured_layers?.length ? (
+                <div className="overflow-x-auto rounded-xl border border-slate-800">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-900 text-slate-400">
+                      <tr>
+                        <th className="p-3 font-semibold">Layer</th>
+                        <th className="p-3 font-semibold">Type</th>
+                        <th className="p-3 font-semibold">Position</th>
+                        <th className="p-3 font-semibold">Size</th>
+                        <th className="p-3 font-semibold">Nearest spacing</th>
+                        <th className="p-3 font-semibold">Text style</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.measured_layers.map((layer, index) => (
+                        <tr key={`${layer.name}-${index}`} className="border-t border-slate-800 text-slate-300">
+                          <td className="max-w-64 truncate p-3" title={layer.name}>{layer.name}</td>
+                          <td className="p-3 capitalize">{layer.kind}</td>
+                          <td className="whitespace-nowrap p-3 font-mono">{layer.x}, {layer.y}px</td>
+                          <td className="whitespace-nowrap p-3 font-mono">{layer.width} × {layer.height}px</td>
+                          <td className="whitespace-nowrap p-3 font-mono">R {layer.space_right == null ? '—' : `${layer.space_right}px`} · B {layer.space_below == null ? '—' : `${layer.space_below}px`}</td>
+                          <td className="whitespace-nowrap p-3">{layer.kind === 'text' ? `${layer.font_family}, ${layer.font_size}px, ${layer.font_weight} · ${layer.color}` : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="rounded-xl border border-slate-800 bg-slate-900 p-4 text-xs text-slate-400">Detailed layer measurements are provided by the PSD analysis backend. Reopen the PSD while the backend is running to inspect them.</p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* ======================================================================= */}
@@ -1518,7 +1581,7 @@ npx serve .
             </div>
 
             <div className="text-[10px] text-slate-500 text-center pt-4 border-t border-slate-800">
-              LeafLite Studio &bull; Universal PSD to HTML & Tailwind Engine
+              LeafLite Studio &bull; Measured PSD layer export
             </div>
           </div>
         )}

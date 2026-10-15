@@ -20,8 +20,27 @@ export interface SectionSummary {
   buttons_count: number;
 }
 
+interface MeasuredLayer {
+  name: string;
+  kind: 'text' | 'image';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  space_right?: number | null;
+  space_below?: number | null;
+  text?: string;
+  font_family?: string;
+  font_size?: number;
+  font_weight?: number;
+  color?: string;
+  letter_spacing?: number;
+  asset?: ExtractedAsset;
+}
+
 export interface ClientConversionResult {
   job_id: string;
+  layout_mode: 'measured-layers';
   psd_name: string;
   dimensions: { width: number; height: number };
   composite_url?: string;
@@ -32,6 +51,7 @@ export interface ClientConversionResult {
   color_palette: string[];
   fonts: string[];
   sections: SectionSummary[];
+  measured_layers: Array<Omit<MeasuredLayer, 'asset'>>;
   html_code: string;
   html_code_min: string;
   css_code: string;
@@ -113,6 +133,7 @@ export async function convertPsdClientSide(file: File): Promise<ClientConversion
   const fontSet = new Set<string>();
   const allAssets: ExtractedAsset[] = [];
   const sections: ParsedSection[] = [];
+  const measuredLayers: MeasuredLayer[] = [];
 
   let assetCounter = 0;
 
@@ -187,6 +208,19 @@ export async function convertPsdClientSide(file: File): Promise<ClientConversion
         fontSet.add(cleanFont);
 
         const fontSize = Math.round(style.fontSize || 16);
+        const left = Number(node.left ?? 0);
+        const top = Number(node.top ?? 0);
+        const right = Number(node.right ?? left);
+        const bottom = Number(node.bottom ?? top);
+        const fillColor = style.fillColor;
+        const color = fillColor ? rgbToHex(fillColor.r, fillColor.g, fillColor.b) : '#1e293b';
+        const weight = /bold|black|heavy|semibold/i.test(fontName) ? 700 : (/medium/i.test(fontName) ? 500 : 400);
+        measuredLayers.push({
+          name: node.name || 'Text layer', kind: 'text', x: left, y: top,
+          width: Math.max(0, right - left), height: Math.max(0, bottom - top),
+          text: textContent, font_family: cleanFont, font_size: fontSize,
+          font_weight: weight, color, letter_spacing: 0
+        });
         if (style.fillColor) {
           const hex = rgbToHex(style.fillColor.r, style.fillColor.g, style.fillColor.b);
           colorFreq[hex] = (colorFreq[hex] || 0) + 1;
@@ -227,8 +261,18 @@ export async function convertPsdClientSide(file: File): Promise<ClientConversion
         } else {
           sec.paragraphs.push(textContent);
         }
-      } else if (node.canvas) {
+      } else if (node.canvas && (!node.children || node.children.length === 0)) {
         const asset = await extractLayerAsset(node, `${secType}-${item.name || 'img'}`);
+        const left = Number(node.left ?? 0);
+        const top = Number(node.top ?? 0);
+        const right = Number(node.right ?? (asset ? left + asset.width : left));
+        const bottom = Number(node.bottom ?? (asset ? top + asset.height : top));
+        if (asset) {
+          measuredLayers.push({
+            name: node.name || asset.name, kind: 'image', x: left, y: top,
+            width: Math.max(0, right - left), height: Math.max(0, bottom - top), asset
+          });
+        }
         if (asset && sec.images.length < 6) {
           sec.images.push(asset);
         }
@@ -305,9 +349,27 @@ export async function convertPsdClientSide(file: File): Promise<ClientConversion
   const fontList = Array.from(fontSet).slice(0, 3);
   if (fontList.length === 0) fontList.push('Inter', 'system-ui');
 
-  // Generate Modern HTML & CSS
-  const { htmlCode, cssCode } = generateModernCssBundle(file.name, sections, primaryColor, secondaryColor, fontList);
-  const tailwindCode = generateTailwindBundle(file.name, sections, primaryColor, secondaryColor, fontList);
+  if (measuredLayers.length === 0 && compAsset) {
+    measuredLayers.push({
+      name: compAsset.name, kind: 'image', x: 0, y: 0, width: docWidth, height: docHeight, asset: compAsset
+    });
+  }
+  for (const layer of measuredLayers) {
+    const rightGaps = measuredLayers.filter((other) => other !== layer
+      && other.y < layer.y + layer.height && other.y + other.height > layer.y
+      && other.x >= layer.x + layer.width)
+      .map((other) => other.x - layer.x - layer.width);
+    const belowGaps = measuredLayers.filter((other) => other !== layer
+      && other.x < layer.x + layer.width && other.x + other.width > layer.x
+      && other.y >= layer.y + layer.height)
+      .map((other) => other.y - layer.y - layer.height);
+    layer.space_right = rightGaps.length ? Math.min(...rightGaps) : null;
+    layer.space_below = belowGaps.length ? Math.min(...belowGaps) : null;
+  }
+
+  // Generate layout directly from PSD layer bounds.
+  const { htmlCode, cssCode } = generateMeasuredCssBundle(file.name, docWidth, docHeight, measuredLayers, primaryColor, secondaryColor);
+  const tailwindCode = generateMeasuredTailwindBundle(file.name, docWidth, docHeight, measuredLayers, primaryColor, secondaryColor);
 
   const htmlCodeMin = minifyHtml(htmlCode);
   const cssCodeMin = minifyCss(cssCode);
@@ -373,6 +435,7 @@ Open \`index.html\` (Modern CSS) or \`tailwind.html\` (Tailwind CSS) directly in
 
   return {
     job_id: `client-${Date.now()}`,
+    layout_mode: 'measured-layers',
     psd_name: file.name,
     dimensions: { width: docWidth, height: docHeight },
     composite_url: compositeUrl,
@@ -383,6 +446,7 @@ Open \`index.html\` (Modern CSS) or \`tailwind.html\` (Tailwind CSS) directly in
     color_palette: colorPalette,
     fonts: fontList,
     sections: sectionSummaries,
+    measured_layers: measuredLayers.map(({ asset, ...layer }) => layer),
     html_code: htmlCode,
     html_code_min: htmlCodeMin,
     css_code: cssCode,
@@ -393,6 +457,51 @@ Open \`index.html\` (Modern CSS) or \`tailwind.html\` (Tailwind CSS) directly in
     zip_download_url: zipBlobUrl,
     zip_filename: zipFilename
   };
+}
+
+function escapeMarkup(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character] || character));
+}
+
+function generateMeasuredCssBundle(
+  psdName: string,
+  docWidth: number,
+  docHeight: number,
+  layers: MeasuredLayer[],
+  primary: string,
+  secondary: string
+): { htmlCode: string; cssCode: string } {
+  const title = escapeMarkup(psdName.replace(/\.psd$/i, ''));
+  const children = layers.map((layer) => {
+    const bounds = `left:${(layer.x / docWidth * 100).toFixed(5)}%;top:${(layer.y / docWidth * 100).toFixed(5)}%;width:${(layer.width / docWidth * 100).toFixed(5)}%;height:${(layer.height / docWidth * 100).toFixed(5)}%;`;
+    if (layer.kind === 'text') {
+      const family = escapeMarkup(layer.font_family || 'Inter');
+      const style = `${bounds}font-family:'${family}',sans-serif;font-size:${((layer.font_size || 16) / docWidth * 100).toFixed(5)}cqw;font-weight:${layer.font_weight || 400};color:${layer.color || '#1e293b'};white-space:pre-wrap;`;
+      return `    <span class="psd-layer psd-text" aria-label="${escapeMarkup(layer.name)}" style="${style}">${escapeMarkup(layer.text || '')}</span>`;
+    }
+    if (!layer.asset) return '';
+    return `    <img class="psd-layer psd-image" src="images/${escapeMarkup(layer.asset.filename)}" alt="${escapeMarkup(layer.name)}" style="${bounds}object-fit:fill;" />`;
+  }).filter(Boolean).join('\n');
+  const htmlCode = `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8" />\n  <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n  <title>${title} | PSD layout</title>\n  <link rel="stylesheet" href="css/style.css" />\n</head>\n<body>\n  <main class="psd-canvas" style="aspect-ratio:${docWidth}/${docHeight};" aria-label="${title} PSD layout">\n${children}\n  </main>\n</body>\n</html>`;
+  const cssCode = `:root { --primary: ${primary}; --secondary: ${secondary}; --design-width: ${docWidth}px; }\n* { box-sizing: border-box; }\nhtml, body { margin: 0; min-height: 100%; }\nbody { background: #f1f3f5; }\n.psd-canvas { position: relative; container-type: inline-size; width: min(100%, var(--design-width)); aspect-ratio: ${docWidth} / ${docHeight}; margin-inline: auto; overflow: hidden; background: #fff; }\n.psd-layer { position: absolute; display: block; margin: 0; padding: 0; }\n.psd-text { line-height: 1; transform-origin: top left; }\n.psd-image { max-width: none; }\n@media print { body { background: #fff; } .psd-canvas { width: 100%; } }\n`;
+  return { htmlCode, cssCode };
+}
+
+function generateMeasuredTailwindBundle(
+  psdName: string,
+  docWidth: number,
+  docHeight: number,
+  layers: MeasuredLayer[],
+  primary: string,
+  secondary: string
+): string {
+  const { htmlCode } = generateMeasuredCssBundle(psdName, docWidth, docHeight, layers, primary, secondary);
+  const css = `<style>:root{--primary:${primary};--secondary:${secondary}}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#f1f3f5}.psd-canvas{container-type:inline-size;overflow:hidden;background:#fff}.psd-layer{position:absolute;display:block;margin:0;padding:0}.psd-text{line-height:1;transform-origin:top left}.psd-image{max-width:none}</style>`;
+  return htmlCode
+    .replace('<link rel="stylesheet" href="css/style.css" />', `<script src="https://cdn.tailwindcss.com"></script>\n  ${css}`)
+    .replace('class="psd-canvas"', `class="psd-canvas relative mx-auto w-full max-w-[${docWidth}px]"`);
 }
 
 function generateModernCssBundle(

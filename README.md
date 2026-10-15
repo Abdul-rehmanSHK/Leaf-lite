@@ -45,10 +45,10 @@
 - **Toggleable Measurement Guides**: Inspect spacing calipers and bounding boxes with 1-click guide toggle.
 - **Individual Layer Exporter**: Export and optimize layers directly to WebP, PNG, or JPG.
 
-### 🌐 7. PSD to HTML & Tailwind Studio (Trained Code & Asset Generator)
-- **Trained on Real Human-Coded Reference**: Calibrated with the 1920×9934px Marine Construction design to output clean semantic HTML5, BEM naming, and modern design tokens (`--primary: #003478`, `--secondary: #0088ce`).
-- **Rule-Based Geometric Engine**: Detects headers, hero banners, 2-column features, card grids, statistics counters, testimonials, and footers with exact padding and margin math.
-- **Dual Code Outputs**: 1-click instant toggle between **Modern Semantic CSS** and **Tailwind CSS**.
+### 🌐 7. PSD to HTML & Tailwind Studio
+- **Measured Layer Export**: Reads each visible layer's pixel bounds and exports positioned HTML elements against the original canvas dimensions.
+- **Typography Inspection**: Extracts text content, font family, size, weight, color, and letter spacing for review in the Measurements tab.
+- **Dual Code Outputs**: Export the same measured layout as a CSS project or Tailwind-compatible HTML.
 - **Automated WebP Asset Slicing**: Extracts and optimizes all images, logos, and photos directly into an `images/` directory.
 - **Interactive Multi-Device Preview**: Live sandbox preview with instant breakpoint toggles (Desktop 🖥️, Laptop 💻, Tablet 📱, Mobile 📱) and full-screen preview.
 - **1-Click Complete Project ZIP Download**: Packages `index.html`, `tailwind.html`, `css/style.css`, and all sliced WebP assets into a deployment-ready ZIP archive.

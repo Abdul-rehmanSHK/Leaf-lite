@@ -4,6 +4,7 @@ import json
 import uuid
 import shutil
 import zipfile
+from html import escape
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from PIL import Image
@@ -56,6 +57,8 @@ class PsdToHtmlEngine:
         self.color_palette: List[str] = []
         self.fonts: List[str] = []
         self.asset_counter = 0
+        self.measured_layers: List[Dict[str, Any]] = []
+        self.layer_asset_cache: Dict[int, Dict[str, Any]] = {}
 
     def parse_and_generate(self) -> Dict[str, Any]:
         psd = psd_tools.PSDImage.open(self.psd_path)
@@ -191,9 +194,10 @@ class PsdToHtmlEngine:
         if not self.fonts:
             self.fonts = ["Inter", "system-ui"]
 
-        # Generate Standard & Minified Bundles
-        html_code, css_code = self._generate_modern_css_bundle(groups_data, doc_w, primary_color, secondary_color)
-        tailwind_code = self._generate_tailwind_bundle(groups_data, doc_w, primary_color, secondary_color)
+        # Generate output from measured layer bounds instead of inferred section templates.
+        self.measured_layers = self._collect_measured_layers(psd)
+        html_code, css_code = self._generate_measured_css_bundle(doc_w, doc_h, primary_color, secondary_color)
+        tailwind_code = self._generate_measured_tailwind_bundle(doc_w, doc_h, primary_color, secondary_color)
 
         html_code_min = minify_html(html_code)
         css_code_min = minify_css(css_code)
@@ -283,6 +287,7 @@ Open `index.html` (Modern CSS) or `tailwind.html` (Tailwind CSS) directly in any
         return {
             "status": "SUCCESS",
             "psd_name": self.psd_path.name,
+            "layout_mode": "measured-layers",
             "dimensions": {"width": doc_w, "height": doc_h},
             "composite_url": composite_url,
             "detected_sections_count": len(groups_data),
@@ -301,6 +306,10 @@ Open `index.html` (Modern CSS) or `tailwind.html` (Tailwind CSS) directly in any
                 }
                 for g in groups_data
             ],
+            "measured_layers": [
+                {key: value for key, value in layer.items() if key != "asset"}
+                for layer in self.measured_layers
+            ],
             "html_code": html_code,
             "html_code_min": html_code_min,
             "css_code": css_code,
@@ -311,6 +320,125 @@ Open `index.html` (Modern CSS) or `tailwind.html` (Tailwind CSS) directly in any
             "zip_path": str(zip_path),
             "zip_filename": zip_filename
         }
+
+    def _collect_measured_layers(self, psd) -> List[Dict[str, Any]]:
+        measured: List[Dict[str, Any]] = []
+
+        def visit(items):
+            for layer in items:
+                if not layer.visible:
+                    continue
+                if layer.is_group():
+                    visit(layer)
+                    continue
+                bounds = layer.bbox
+                if not bounds:
+                    continue
+                left, top, right, bottom = [int(value) for value in bounds]
+                width = max(0, right - left)
+                height = max(0, bottom - top)
+                if width == 0 or height == 0:
+                    continue
+
+                if layer.kind == "type":
+                    text_info = self._extract_type_info(layer)
+                    if text_info:
+                        measured.append({
+                            "name": str(layer.name), "kind": "text", "x": left, "y": top,
+                            "width": width, "height": height, "text": text_info["text"],
+                            "font_family": text_info["font_family"], "font_size": text_info["font_size"],
+                            "font_weight": text_info.get("font_weight", 400),
+                            "color": text_info["color_hex"], "letter_spacing": text_info.get("letter_spacing", 0),
+                        })
+                    continue
+
+                asset = self._slice_layer_image(layer, f"layer-{layer.name}")
+                if asset:
+                    measured.append({
+                        "name": str(layer.name), "kind": "image", "x": left, "y": top,
+                        "width": width, "height": height, "asset": asset,
+                    })
+
+        visit(psd)
+        for current in measured:
+            horizontal_neighbors = [
+                other["x"] - current["x"] - current["width"]
+                for other in measured
+                if other is not current
+                and other["y"] < current["y"] + current["height"]
+                and other["y"] + other["height"] > current["y"]
+                and other["x"] >= current["x"] + current["width"]
+            ]
+            vertical_neighbors = [
+                other["y"] - current["y"] - current["height"]
+                for other in measured
+                if other is not current
+                and other["x"] < current["x"] + current["width"]
+                and other["x"] + other["width"] > current["x"]
+                and other["y"] >= current["y"] + current["height"]
+            ]
+            current["space_right"] = min(horizontal_neighbors) if horizontal_neighbors else None
+            current["space_below"] = min(vertical_neighbors) if vertical_neighbors else None
+        return measured
+
+    def _measured_markup(self, doc_w: int, doc_h: int, utility_classes: bool = False) -> str:
+        title = escape(self.psd_path.stem)
+        nodes = []
+        for index, layer in enumerate(self.measured_layers):
+            x = layer["x"] / doc_w * 100
+            y = layer["y"] / doc_w * 100
+            width = layer["width"] / doc_w * 100
+            height = layer["height"] / doc_w * 100
+            pos = f"left:{x:.5f}%;top:{y:.5f}%;width:{width:.5f}%;height:{height:.5f}%;"
+            if layer["kind"] == "text":
+                font_size = layer["font_size"] / doc_w * 100
+                tracking = layer["letter_spacing"] / doc_w * 100
+                style = (f"{pos}font-family:'{escape(layer['font_family'], quote=True)}',sans-serif;"
+                         f"font-size:{font_size:.5f}cqw;font-weight:{layer['font_weight']};"
+                         f"letter-spacing:{tracking:.5f}cqw;color:{layer['color']};white-space:pre-wrap;")
+                nodes.append(f'    <span class="psd-layer psd-text" aria-label="{escape(layer["name"], quote=True)}" style="{style}">{escape(layer["text"])}</span>')
+            else:
+                asset = layer["asset"]
+                style = pos + "object-fit:fill;"
+                nodes.append(f'    <img class="psd-layer psd-image" src="images/{escape(asset["filename"], quote=True)}" alt="{escape(layer["name"], quote=True)}" style="{style}" />')
+
+        mode_class = ' class="psd-canvas"' if not utility_classes else ' class="psd-canvas relative mx-auto w-full max-w-[%dpx]"' % doc_w
+        style = f' style="aspect-ratio:{doc_w}/{doc_h};"' if utility_classes else ''
+        return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} | PSD layout</title>
+{self._get_google_fonts_embed(self.fonts)}
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main aria-label="{title} PSD layout"{mode_class}{style}>
+{chr(10).join(nodes)}
+  </main>
+</body>
+</html>'''
+
+    def _generate_measured_css_bundle(self, doc_w: int, doc_h: int, primary: str, secondary: str) -> Tuple[str, str]:
+        html_code = self._measured_markup(doc_w, doc_h)
+        css_code = f'''@font-face {{ font-family: "Inter"; src: local("Inter"); }}
+:root {{ --primary: {primary}; --secondary: {secondary}; --design-width: {doc_w}px; }}
+* {{ box-sizing: border-box; }}
+html, body {{ margin: 0; min-height: 100%; }}
+body {{ background: #f1f3f5; }}
+.psd-canvas {{ position: relative; container-type: inline-size; width: min(100%, var(--design-width)); aspect-ratio: {doc_w} / {doc_h}; margin-inline: auto; overflow: hidden; background: #fff; }}
+.psd-layer {{ position: absolute; display: block; margin: 0; padding: 0; }}
+.psd-text {{ line-height: 1; transform-origin: top left; }}
+.psd-image {{ max-width: none; }}
+@media print {{ body {{ background: #fff; }} .psd-canvas {{ width: 100%; }} }}
+'''
+        return html_code, css_code
+
+    def _generate_measured_tailwind_bundle(self, doc_w: int, doc_h: int, primary: str, secondary: str) -> str:
+        markup = self._measured_markup(doc_w, doc_h, utility_classes=True)
+        return markup.replace('<link rel="stylesheet" href="css/style.css" />', f'''<script src="https://cdn.tailwindcss.com"></script>
+  <style>:root{{--primary:{primary};--secondary:{secondary}}}*{{box-sizing:border-box}}html,body{{margin:0;min-height:100%;background:#f1f3f5}}.psd-canvas{{container-type:inline-size;overflow:hidden;background:white}}.psd-layer{{position:absolute;display:block;margin:0;padding:0}}.psd-text{{line-height:1;transform-origin:top left}}.psd-image{{max-width:none}}</style>''')
 
     def _cluster_flat_layers(self, items: List[Any], doc_w: int, doc_h: int, color_freq: Dict[str, int], font_set: set) -> List[Dict[str, Any]]:
         """Groups flat/ungrouped layers into vertical semantic sections based on Y coordinates."""
@@ -540,6 +668,8 @@ Open `index.html` (Modern CSS) or `tailwind.html` (Tailwind CSS) directly in any
             font_size = 16.0
             font_family = "Inter"
             color_hex = "#1e293b"
+            font_weight = 400
+            letter_spacing = 0.0
 
             td = layer.engine_dict
             rd = layer.resource_dict
@@ -548,12 +678,20 @@ Open `index.html` (Modern CSS) or `tailwind.html` (Tailwind CSS) directly in any
                 if run_data:
                     sheet = run_data[0].get('StyleSheet', {}).get('StyleSheetData', {})
                     font_size = float(sheet.get('FontSize', 16.0))
+                    font_weight = 700 if sheet.get('FauxBold') else 400
+                    letter_spacing = float(sheet.get('Tracking', 0) or 0) / 1000.0 * font_size
                     font_idx = sheet.get('Font', 0)
                     if rd and 'FontSet' in rd:
                         fonts = rd.get('FontSet', [])
                         if font_idx < len(fonts):
                             fname = fonts[font_idx].get('Name', '')
                             if fname:
+                                if re.search(r"(bold|black|heavy|semibold|demi)", str(fname), re.IGNORECASE):
+                                    font_weight = 700
+                                elif re.search(r"medium", str(fname), re.IGNORECASE):
+                                    font_weight = 500
+                                elif re.search(r"(light|thin)", str(fname), re.IGNORECASE):
+                                    font_weight = 300
                                 clean_f = str(fname).strip("'\"").split('-')[0].replace("72ptSoft", "").replace("72pt", "").strip()
                                 if clean_f:
                                     font_family = clean_f
@@ -571,6 +709,8 @@ Open `index.html` (Modern CSS) or `tailwind.html` (Tailwind CSS) directly in any
                 "text": txt,
                 "font_size": round(font_size),
                 "font_family": font_family or "Inter",
+                "font_weight": font_weight,
+                "letter_spacing": letter_spacing,
                 "color_hex": color_hex,
                 "bbox": list(layer.bbox) if layer.bbox else [0, 0, 100, 30]
             }
@@ -579,6 +719,9 @@ Open `index.html` (Modern CSS) or `tailwind.html` (Tailwind CSS) directly in any
 
     def _slice_layer_image(self, layer, base_name: str) -> Optional[Dict[str, Any]]:
         try:
+            cached_asset = self.layer_asset_cache.get(id(layer))
+            if cached_asset:
+                return cached_asset
             if not layer.bbox or layer.width < 10 or layer.height < 10:
                 return None
 
@@ -611,6 +754,7 @@ Open `index.html` (Modern CSS) or `tailwind.html` (Tailwind CSS) directly in any
                 "size_bytes": target_path.stat().st_size
             }
             self.extracted_assets.append(asset_info)
+            self.layer_asset_cache[id(layer)] = asset_info
             return asset_info
         except Exception:
             return None
