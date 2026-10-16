@@ -20,8 +20,6 @@ import {
   EyeOff,
   Move,
   Sparkles,
-  Zap,
-  RefreshCw,
   FolderOpen,
   Check,
   AlignLeft,
@@ -34,7 +32,6 @@ import {
 } from 'lucide-react';
 
 interface ResizeToolProps {
-  backendUrl: string;
   onUnsavedChangesChange?: (hasUnsavedChanges: boolean) => void;
 }
 
@@ -98,7 +95,7 @@ const PRESET_CANVASES = [
   { name: 'Standard Photo (1024 × 768)', w: 1024, h: 768 }
 ];
 
-export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl, onUnsavedChangesChange }) => {
+export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }) => {
   // Multi-Document state
   const [documents, setDocuments] = useState<CanvasDocument[]>([
     {
@@ -139,19 +136,11 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl, onUnsavedCha
   const [newDocHeight, setNewDocHeight] = useState<number>(1080);
   const [newDocBg, setNewDocBg] = useState<string>('transparent');
 
-  // Export & Optimization states
+  // Export states
   const [exportFormat, setExportFormat] = useState<'WEBP' | 'PNG' | 'JPG'>('WEBP');
   const [exportQuality, setExportQuality] = useState<number>(85);
   const [isExporting, setIsExporting] = useState<boolean>(false);
-  const [isOptimizing, setIsOptimizing] = useState<boolean>(false);
   const [imageLoadError, setImageLoadError] = useState<string | null>(null);
-  const [optimizeResult, setOptimizeResult] = useState<{
-    originalSize: string;
-    optimizedSize: string;
-    savedPercent: number;
-    downloadUrl: string;
-    filename: string;
-  } | null>(null);
 
   // Drag tracking refs
   const dragStartRef = useRef<{
@@ -659,10 +648,9 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl, onUnsavedCha
     onUnsavedChangesChange?.(otherDocumentsHaveChanges);
   };
 
-  // Save to computer or optimize via LeafLite backend
-  const handleExportDocument = async (isLeafLiteOptimize = false) => {
+  // Save the composed canvas directly to the user's computer.
+  const handleExportDocument = async () => {
     setIsExporting(true);
-    setOptimizeResult(null);
 
     try {
       const compositeCanvas = await renderCompositeCanvas();
@@ -678,44 +666,17 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl, onUnsavedCha
       const ext = exportFormat.toLowerCase();
       const filename = `${activeDoc.title.replace(/[^a-zA-Z0-9_-]/g, '_')}_${activeDoc.width}x${activeDoc.height}.${ext}`;
 
-      if (!isLeafLiteOptimize) {
-        // Direct Client-Side Download to System
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(url);
-        markActiveDocumentSaved();
-      } else {
-        // Send to LeafLite FastAPI backend optimization engine
-        setIsOptimizing(true);
-        const formData = new FormData();
-        formData.append('file', blob, filename);
-        formData.append('target_format', exportFormat);
-        formData.append('quality', exportQuality.toString());
-
-        const res = await fetch(`${backendUrl}/api/tools/optimize-direct`, {
-          method: 'POST',
-          body: formData
-        });
-
-        if (!res.ok) throw new Error('Optimization request failed.');
-        const data = await res.json();
-
-        setOptimizeResult({
-          originalSize: data.original_size_formatted || `${(blob.size / 1024).toFixed(1)} KB`,
-          optimizedSize: data.optimized_size_formatted,
-          savedPercent: data.saved_percent || 0,
-          downloadUrl: `${backendUrl}${data.download_url}`,
-          filename: data.download_filename || filename
-        });
-      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+      markActiveDocumentSaved();
     } catch (err: any) {
       alert(`Export error: ${err.message}`);
     } finally {
       setIsExporting(false);
-      setIsOptimizing(false);
     }
   };
 
@@ -1350,51 +1311,14 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl, onUnsavedCha
             <div className="flex flex-col gap-2 pt-1">
               <button
                 type="button"
-                onClick={() => handleExportDocument(false)}
+                onClick={handleExportDocument}
                 disabled={isExporting}
                 className="w-full py-2 bg-slate-800 hover:bg-slate-700 active:scale-98 text-slate-100 font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 border border-slate-700 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5 text-slate-300" />
                 <span>Save to Computer ({exportFormat})</span>
               </button>
-
-              <button
-                type="button"
-                onClick={() => handleExportDocument(true)}
-                disabled={isOptimizing}
-                className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 active:scale-98 text-white font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-md shadow-emerald-900/40 cursor-pointer"
-              >
-                {isOptimizing ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Zap className="w-3.5 h-3.5 text-emerald-200 fill-emerald-200" />
-                )}
-                <span>Optimize with LeafLite Engine</span>
-              </button>
             </div>
-
-            {/* Optimization Results Report */}
-            {optimizeResult && (
-              <div className="p-3 bg-emerald-950/80 border border-emerald-800 rounded-xl space-y-2 text-xs">
-                <div className="flex items-center justify-between font-bold text-emerald-300">
-                  <span>Engine Optimized!</span>
-                  <span className="bg-emerald-800 text-white text-[10px] px-2 py-0.5 rounded-full">
-                    {optimizeResult.savedPercent}% Saved
-                  </span>
-                </div>
-                <div className="text-[11px] text-emerald-400/90 font-mono">
-                  {optimizeResult.originalSize} → {optimizeResult.optimizedSize}
-                </div>
-                <a
-                  href={optimizeResult.downloadUrl}
-                  download={optimizeResult.filename}
-                  onClick={markActiveDocumentSaved}
-                  className="block text-center w-full py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition-colors"
-                >
-                  Download Optimized Image
-                </a>
-              </div>
-            )}
           </div>
         </div>
       </div>

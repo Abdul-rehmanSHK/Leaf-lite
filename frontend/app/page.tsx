@@ -646,7 +646,6 @@ export default function LeafLiteStudioPage() {
           <div className="flex-1 w-full min-h-0 overflow-hidden flex flex-col">
             {activeTab === 'resize' && (
               <ResizeTool
-                backendUrl={BACKEND_URL}
                 onUnsavedChangesChange={setHasUnsavedResizeChanges}
               />
             )}
