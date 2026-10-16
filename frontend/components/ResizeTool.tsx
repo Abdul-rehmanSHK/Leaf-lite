@@ -929,98 +929,91 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
               backgroundColor: activeDoc.backgroundColor === 'transparent' ? undefined : activeDoc.backgroundColor
             }}
           >
-            {/* Render Layers */}
-            {activeDoc.layers.map((layer) => {
-              if (!layer.visible) return null;
-              const isSelected = activeDoc.activeLayerId === layer.id;
-              const imageClipTop = Math.max(0, -layer.y);
-              const imageClipRight = Math.max(0, layer.x + layer.width - activeDoc.width);
-              const imageClipBottom = Math.max(0, layer.y + layer.height - activeDoc.height);
-              const imageClipLeft = Math.max(0, -layer.x);
-
-              return (
-                <div
-                  key={layer.id}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    updateActiveDoc((doc) => ({ ...doc, activeLayerId: layer.id }));
-                  }}
-                  onPointerDown={(e) => handlePointerDown(e, 'move', layer)}
-                  className={`absolute group cursor-move select-none ${
-                    isSelected ? 'z-30' : 'z-10'
-                  }`}
-                  style={{
-                    left: `${layer.x}px`,
-                    top: `${layer.y}px`,
-                    width: `${layer.width}px`,
-                    height: `${layer.height}px`,
-                    opacity: layer.opacity / 100
-                  }}
-                >
-                  <img
-                    src={layer.src}
-                    alt={layer.name}
-                    className="w-full h-full object-contain pointer-events-none"
-                    style={{
-                      clipPath: `inset(${imageClipTop}px ${imageClipRight}px ${imageClipBottom}px ${imageClipLeft}px)`
+            {/* Clip artwork to the actual artboard, even when a layer extends past it. */}
+            <div className="absolute inset-0 overflow-hidden">
+              {activeDoc.layers.map((layer, index) => {
+                if (!layer.visible) return null;
+                return (
+                  <div
+                    key={layer.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateActiveDoc((doc) => ({ ...doc, activeLayerId: layer.id }));
                     }}
-                    draggable={false}
+                    onPointerDown={(e) => handlePointerDown(e, 'move', layer)}
+                    className="absolute group cursor-move select-none"
+                    style={{
+                      left: layer.x,
+                      top: layer.y,
+                      width: layer.width,
+                      height: layer.height,
+                      opacity: layer.opacity / 100,
+                      zIndex: index + 1
+                    }}
+                  >
+                    <img
+                      src={layer.src}
+                      alt={layer.name}
+                      className="w-full h-full object-contain pointer-events-none"
+                      draggable={false}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Keep transform controls above the artboard clip. */}
+            {activeLayer && activeLayer.visible && activeTool === 'transform' && !activeLayer.locked && (
+              <div
+                className="absolute pointer-events-none z-40"
+                style={{
+                  left: activeLayer.x,
+                  top: activeLayer.y,
+                  width: activeLayer.width,
+                  height: activeLayer.height
+                }}
+              >
+                <div className="absolute inset-0 border-2 border-cyan-400 pointer-events-none">
+                  <div
+                    onPointerDown={(e) => handlePointerDown(e, 'nw', activeLayer)}
+                    className="absolute -top-2 -left-2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-nwse-resize hover:scale-125 transition-transform"
                   />
-
-                  {/* PHOTOSHOP TRANSFORM BOUNDING BOX & 8 ANCHOR HANDLES (Ctrl+T) */}
-                  {isSelected && activeTool === 'transform' && !layer.locked && (
-                    <div className="absolute inset-0 border-2 border-cyan-400 pointer-events-none">
-                      {/* NW Handle */}
-                      <div
-                        onPointerDown={(e) => handlePointerDown(e, 'nw', layer)}
-                        className="absolute -top-2 -left-2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-nwse-resize hover:scale-125 transition-transform"
-                      />
-                      {/* N Handle */}
-                      <div
-                        onPointerDown={(e) => handlePointerDown(e, 'n', layer)}
-                        className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-ns-resize hover:scale-125 transition-transform"
-                      />
-                      {/* NE Handle */}
-                      <div
-                        onPointerDown={(e) => handlePointerDown(e, 'ne', layer)}
-                        className="absolute -top-2 -right-2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-nesw-resize hover:scale-125 transition-transform"
-                      />
-                      {/* E Handle */}
-                      <div
-                        onPointerDown={(e) => handlePointerDown(e, 'e', layer)}
-                        className="absolute top-1/2 -translate-y-1/2 -right-2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-ew-resize hover:scale-125 transition-transform"
-                      />
-                      {/* SE Handle */}
-                      <div
-                        onPointerDown={(e) => handlePointerDown(e, 'se', layer)}
-                        className="absolute -bottom-2 -right-2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-nwse-resize hover:scale-125 transition-transform"
-                      />
-                      {/* S Handle */}
-                      <div
-                        onPointerDown={(e) => handlePointerDown(e, 's', layer)}
-                        className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-ns-resize hover:scale-125 transition-transform"
-                      />
-                      {/* SW Handle */}
-                      <div
-                        onPointerDown={(e) => handlePointerDown(e, 'sw', layer)}
-                        className="absolute -bottom-2 -left-2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-nesw-resize hover:scale-125 transition-transform"
-                      />
-                      {/* W Handle */}
-                      <div
-                        onPointerDown={(e) => handlePointerDown(e, 'w', layer)}
-                        className="absolute top-1/2 -translate-y-1/2 -left-2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-ew-resize hover:scale-125 transition-transform"
-                      />
-
-                      {/* Dimension Pill Overlay */}
-                      <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-cyan-500 text-slate-950 font-mono font-bold text-[10px] px-2 py-0.5 rounded shadow-lg whitespace-nowrap">
-                        {layer.width} × {layer.height} px • (
-                        {Math.round((layer.width / layer.originalWidth) * 100)}%)
-                      </div>
-                    </div>
-                  )}
+                  <div
+                    onPointerDown={(e) => handlePointerDown(e, 'n', activeLayer)}
+                    className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-ns-resize hover:scale-125 transition-transform"
+                  />
+                  <div
+                    onPointerDown={(e) => handlePointerDown(e, 'ne', activeLayer)}
+                    className="absolute -top-2 -right-2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-nesw-resize hover:scale-125 transition-transform"
+                  />
+                  <div
+                    onPointerDown={(e) => handlePointerDown(e, 'e', activeLayer)}
+                    className="absolute top-1/2 -translate-y-1/2 -right-2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-ew-resize hover:scale-125 transition-transform"
+                  />
+                  <div
+                    onPointerDown={(e) => handlePointerDown(e, 'se', activeLayer)}
+                    className="absolute -bottom-2 -right-2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-nwse-resize hover:scale-125 transition-transform"
+                  />
+                  <div
+                    onPointerDown={(e) => handlePointerDown(e, 's', activeLayer)}
+                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-ns-resize hover:scale-125 transition-transform"
+                  />
+                  <div
+                    onPointerDown={(e) => handlePointerDown(e, 'sw', activeLayer)}
+                    className="absolute -bottom-2 -left-2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-nesw-resize hover:scale-125 transition-transform"
+                  />
+                  <div
+                    onPointerDown={(e) => handlePointerDown(e, 'w', activeLayer)}
+                    className="absolute top-1/2 -translate-y-1/2 -left-2 w-4 h-4 bg-white border-2 border-cyan-600 rounded-xs shadow-md pointer-events-auto cursor-ew-resize hover:scale-125 transition-transform"
+                  />
+                  <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-cyan-500 text-slate-950 font-mono font-bold text-[10px] px-2 py-0.5 rounded shadow-lg whitespace-nowrap">
+                    {activeLayer.width} × {activeLayer.height} px • (
+                    {Math.round((activeLayer.width / activeLayer.originalWidth) * 100)}%)
+                  </div>
                 </div>
-              );
-            })}
+              </div>
+            )}
+
           </div>
 
           {/* Bottom Viewport Status Bar */}
