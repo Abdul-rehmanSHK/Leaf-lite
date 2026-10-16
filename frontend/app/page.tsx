@@ -68,6 +68,7 @@ const SUPPORTED_OUTPUTS: OutputFormat[] = ['WEBP', 'JPG', 'PNG', 'AVIF', 'SVG'];
 export default function LeafLiteStudioPage() {
   const [activeTab, setActiveTab] = useState<MainTab>('compressor');
   const [previousMainTab, setPreviousMainTab] = useState<MainTab>('compressor');
+  const [hasUnsavedResizeChanges, setHasUnsavedResizeChanges] = useState(false);
   const [selectedExtraTool, setSelectedExtraTool] = useState<ExtraTool>('kb_reducer');
   const [sharedPsdFile, setSharedPsdFile] = useState<File | null>(null);
 
@@ -466,7 +467,15 @@ export default function LeafLiteStudioPage() {
     }
   };
 
+  const confirmLeaveResize = () => {
+    if (activeTab !== 'resize' || !hasUnsavedResizeChanges) return true;
+    const shouldLeave = window.confirm('Your canvas has unsaved changes. Export it before leaving, or leave and discard those changes?');
+    if (shouldLeave) setHasUnsavedResizeChanges(false);
+    return shouldLeave;
+  };
+
   const switchMainTab = (tab: MainTab) => {
+    if (tab !== activeTab && !confirmLeaveResize()) return;
     setActiveTab(tab);
     if (tab !== 'more_tools') {
       setPreviousMainTab(tab);
@@ -475,6 +484,7 @@ export default function LeafLiteStudioPage() {
   };
 
   const toggleMoreTools = () => {
+    if (!confirmLeaveResize()) return;
     if (activeTab === 'more_tools') {
       setActiveTab(previousMainTab);
     } else {
@@ -634,7 +644,12 @@ export default function LeafLiteStudioPage() {
 
           {/* Studio Workspace Content */}
           <div className="flex-1 w-full min-h-0 overflow-hidden flex flex-col">
-            {activeTab === 'resize' && <ResizeTool backendUrl={BACKEND_URL} />}
+            {activeTab === 'resize' && (
+              <ResizeTool
+                backendUrl={BACKEND_URL}
+                onUnsavedChangesChange={setHasUnsavedResizeChanges}
+              />
+            )}
             {activeTab === 'psd_studio' && (
               <PsdTool
                 backendUrl={BACKEND_URL}

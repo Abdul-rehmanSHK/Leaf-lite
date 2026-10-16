@@ -35,7 +35,26 @@ import {
 
 interface ResizeToolProps {
   backendUrl: string;
+  onUnsavedChangesChange?: (hasUnsavedChanges: boolean) => void;
 }
+
+const getDocumentContentSignature = (doc: CanvasDocument) => JSON.stringify({
+  title: doc.title,
+  width: doc.width,
+  height: doc.height,
+  backgroundColor: doc.backgroundColor,
+  layers: doc.layers.map((layer) => ({
+    id: layer.id,
+    name: layer.name,
+    src: layer.src,
+    x: layer.x,
+    y: layer.y,
+    width: layer.width,
+    height: layer.height,
+    opacity: layer.opacity,
+    visible: layer.visible
+  }))
+});
 
 export type HandleType = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w';
 
@@ -79,7 +98,7 @@ const PRESET_CANVASES = [
   { name: 'Standard Photo (1024 × 768)', w: 1024, h: 768 }
 ];
 
-export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
+export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl, onUnsavedChangesChange }) => {
   // Multi-Document state
   const [documents, setDocuments] = useState<CanvasDocument[]>([
     {
@@ -109,7 +128,7 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
   }, [activeDoc]);
 
   // Transform & Tool Modes
-  const [activeTool, setActiveTool] = useState<'move' | 'transform' | 'pan' | 'crop'>('transform');
+  const [activeTool, setActiveTool] = useState<'move' | 'transform' | 'pan' | 'crop'>('move');
   const [isShiftPressed, setIsShiftPressed] = useState<boolean>(false);
   const [forceLockAspect, setForceLockAspect] = useState<boolean>(true);
 
@@ -147,6 +166,30 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const savedSignaturesRef = useRef<Record<string, string>>({});
+
+  documents.forEach((doc) => {
+    if (savedSignaturesRef.current[doc.id] === undefined) {
+      savedSignaturesRef.current[doc.id] = getDocumentContentSignature(doc);
+    }
+  });
+  const hasUnsavedChanges = documents.some(
+    (doc) => savedSignaturesRef.current[doc.id] !== getDocumentContentSignature(doc)
+  );
+
+  useEffect(() => {
+    onUnsavedChangesChange?.(hasUnsavedChanges);
+  }, [hasUnsavedChanges, onUnsavedChangesChange]);
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   // ---------------------------------------------------------------------------
   // GLOBAL KEYBOARD SHORTCUTS (Ctrl+N, Ctrl+T, Shift, Delete)
@@ -192,54 +235,6 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
     };
   }, [activeLayer]);
 
-  // Load a sample image layer on first startup if canvas is empty
-  useEffect(() => {
-    if (activeDoc && activeDoc.layers.length === 0) {
-      loadSampleImageLayer();
-    }
-  }, []);
-
-  const loadSampleImageLayer = () => {
-    // Generate a clean sample SVG artwork image
-    const sampleSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
-      <defs>
-        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#059669" />
-          <stop offset="100%" stop-color="#10b981" />
-        </linearGradient>
-      </defs>
-      <rect width="600" height="400" rx="24" fill="url(#grad)" />
-      <circle cx="300" cy="180" r="70" fill="#ffffff" fill-opacity="0.2" />
-      <text x="300" y="195" font-family="system-ui, sans-serif" font-size="44" font-weight="900" fill="#ffffff" text-anchor="middle">🍃 LeafLite</text>
-      <text x="300" y="240" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#e2e8f0" text-anchor="middle">Photoshop Canvas Studio Layer</text>
-      <text x="300" y="340" font-family="monospace" font-size="13" font-weight="700" fill="#a7f3d0" text-anchor="middle">Press Ctrl+T to Transform • Ctrl+N for New Canvas</text>
-    </svg>`;
-
-    const blob = new Blob([sampleSvg], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-
-    const layer: CanvasLayer = {
-      id: `layer-${Date.now()}`,
-      name: 'LeafLite Showcase Banner',
-      src: url,
-      x: Math.round((activeDoc.width - 600) / 2),
-      y: Math.round((activeDoc.height - 400) / 2),
-      width: 600,
-      height: 400,
-      originalWidth: 600,
-      originalHeight: 400,
-      opacity: 100,
-      visible: true,
-      locked: false
-    };
-
-    updateActiveDoc((doc) => ({
-      ...doc,
-      layers: [layer],
-      activeLayerId: layer.id
-    }));
-  };
-
   // Helper to update active document
   const updateActiveDoc = (updater: (doc: CanvasDocument) => CanvasDocument) => {
     setDocuments((prev) =>
@@ -254,8 +249,8 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
     const newDoc: CanvasDocument = {
       id: `doc-${Date.now()}`,
       title: newDocTitle || `Canvas ${documents.length + 1}`,
-      width: Math.max(100, newDocWidth),
-      height: Math.max(100, newDocHeight),
+      width: Math.max(1, newDocWidth),
+      height: Math.max(1, newDocHeight),
       backgroundColor: newDocBg,
       layers: [],
       activeLayerId: null,
@@ -655,6 +650,15 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
     return canvas;
   };
 
+  const markActiveDocumentSaved = () => {
+    savedSignaturesRef.current[activeDoc.id] = getDocumentContentSignature(activeDoc);
+    const otherDocumentsHaveChanges = documents.some(
+      (doc) => doc.id !== activeDoc.id &&
+        savedSignaturesRef.current[doc.id] !== getDocumentContentSignature(doc)
+    );
+    onUnsavedChangesChange?.(otherDocumentsHaveChanges);
+  };
+
   // Save to computer or optimize via LeafLite backend
   const handleExportDocument = async (isLeafLiteOptimize = false) => {
     setIsExporting(true);
@@ -682,6 +686,7 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
         a.download = filename;
         a.click();
         URL.revokeObjectURL(url);
+        markActiveDocumentSaved();
       } else {
         // Send to LeafLite FastAPI backend optimization engine
         setIsOptimizing(true);
@@ -1042,11 +1047,12 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
                 <span className="text-[10px] text-slate-500 block">Width (px)</span>
                 <input
                   type="number"
+                  min="1"
                   value={activeDoc.width}
                   onChange={(e) =>
                     updateActiveDoc((doc) => ({
                       ...doc,
-                      width: Math.max(50, parseInt(e.target.value) || 100)
+                      width: Math.max(1, parseInt(e.target.value) || 1)
                     }))
                   }
                   className="w-full bg-transparent text-white font-mono font-bold focus:outline-none"
@@ -1057,11 +1063,12 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
                 <span className="text-[10px] text-slate-500 block">Height (px)</span>
                 <input
                   type="number"
+                  min="1"
                   value={activeDoc.height}
                   onChange={(e) =>
                     updateActiveDoc((doc) => ({
                       ...doc,
-                      height: Math.max(50, parseInt(e.target.value) || 100)
+                      height: Math.max(1, parseInt(e.target.value) || 1)
                     }))
                   }
                   className="w-full bg-transparent text-white font-mono font-bold focus:outline-none"
@@ -1381,6 +1388,7 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
                 <a
                   href={optimizeResult.downloadUrl}
                   download={optimizeResult.filename}
+                  onClick={markActiveDocumentSaved}
                   className="block text-center w-full py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition-colors"
                 >
                   Download Optimized Image
@@ -1456,8 +1464,9 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
                 <label className="text-xs font-semibold text-slate-300">Width (px)</label>
                 <input
                   type="number"
+                  min="1"
                   value={newDocWidth}
-                  onChange={(e) => setNewDocWidth(parseInt(e.target.value) || 100)}
+                  onChange={(e) => setNewDocWidth(Math.max(1, parseInt(e.target.value) || 1))}
                   className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono font-bold text-white focus:border-cyan-500 focus:outline-none"
                 />
               </div>
@@ -1466,8 +1475,9 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
                 <label className="text-xs font-semibold text-slate-300">Height (px)</label>
                 <input
                   type="number"
+                  min="1"
                   value={newDocHeight}
-                  onChange={(e) => setNewDocHeight(parseInt(e.target.value) || 100)}
+                  onChange={(e) => setNewDocHeight(Math.max(1, parseInt(e.target.value) || 1))}
                   className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono font-bold text-white focus:border-cyan-500 focus:outline-none"
                 />
               </div>
