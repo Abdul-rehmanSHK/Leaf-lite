@@ -199,11 +199,41 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
       if (e.key === 'Shift') {
         setIsShiftPressed(true);
       }
+      // Nudge the active layer with the arrow keys; hold Shift for 10 px steps.
+      if (activeLayer && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        const target = e.target as HTMLElement | null;
+        const isEditingField = target?.isContentEditable ||
+          ['input', 'textarea', 'select'].includes(target?.tagName?.toLowerCase() || '');
+        if (!isEditingField) {
+          e.preventDefault();
+          const step = e.shiftKey ? 10 : 1;
+          let nextX = activeLayer.x;
+          let nextY = activeLayer.y;
+          if (e.key === 'ArrowLeft') nextX -= step;
+          if (e.key === 'ArrowRight') nextX += step;
+          if (e.key === 'ArrowUp') nextY -= step;
+          if (e.key === 'ArrowDown') nextY += step;
+
+          const minX = Math.min(0, activeDoc.width - activeLayer.width);
+          const maxX = Math.max(0, activeDoc.width - activeLayer.width);
+          const minY = Math.min(0, activeDoc.height - activeLayer.height);
+          const maxY = Math.max(0, activeDoc.height - activeLayer.height);
+          nextX = Math.min(maxX, Math.max(minX, nextX));
+          nextY = Math.min(maxY, Math.max(minY, nextY));
+
+          updateActiveDoc((doc) => ({
+            ...doc,
+            layers: doc.layers.map((layer) => layer.id === activeLayer.id
+              ? { ...layer, x: nextX, y: nextY }
+              : layer)
+          }));
+        }
+      }
       // Delete / Backspace: Delete active layer
       if ((e.key === 'Delete' || e.key === 'Backspace') && activeLayer) {
         // Prevent deleting if typing in input
         const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
-        if (tag !== 'input' && tag !== 'textarea') {
+        if (tag !== 'input' && tag !== 'textarea' && tag !== 'select') {
           e.preventDefault();
           handleDeleteLayer(activeLayer.id);
         }
@@ -222,7 +252,7 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [activeLayer]);
+  }, [activeLayer, activeDoc]);
 
   // Helper to update active document
   const updateActiveDoc = (updater: (doc: CanvasDocument) => CanvasDocument) => {
@@ -476,18 +506,13 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
       let nextH = initH;
 
       if (h === 'move') {
-        // Keep a small part of the layer on the artboard so its selection and
-        // handles remain reachable if it is dragged past an edge.
-        const minVisibleX = Math.min(40, initW);
-        const minVisibleY = Math.min(40, initH);
-        nextX = Math.min(
-          activeDoc.width - minVisibleX,
-          Math.max(minVisibleX - initW, Math.round(initX + dx))
-        );
-        nextY = Math.min(
-          activeDoc.height - minVisibleY,
-          Math.max(minVisibleY - initH, Math.round(initY + dy))
-        );
+        // Let the layer align exactly with any canvas edge.
+        const minX = Math.min(0, activeDoc.width - initW);
+        const maxX = Math.max(0, activeDoc.width - initW);
+        const minY = Math.min(0, activeDoc.height - initH);
+        const maxY = Math.max(0, activeDoc.height - initH);
+        nextX = Math.min(maxX, Math.max(minX, Math.round(initX + dx)));
+        nextY = Math.min(maxY, Math.max(minY, Math.round(initY + dy)));
       } else {
         switch (h) {
           case 'se': // Bottom-right
@@ -760,7 +785,7 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
                 ? 'bg-cyan-600 text-white shadow-xs'
                 : 'text-slate-400 hover:text-white'
             }`}
-            title="Free Transform Tool (Ctrl+T)"
+            title="Free Transform Tool (Ctrl+T). Arrow keys move the selected layer; Shift + Arrow moves 10 px."
           >
             <Maximize2 className="w-3.5 h-3.5" />
             <span>Transform</span>
@@ -770,12 +795,12 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
           <button
             type="button"
             onClick={() => setActiveTool('move')}
+            title="Move selected layer with arrow keys; hold Shift to move 10 px."
             className={`px-3 py-1.5 rounded-md font-bold flex items-center gap-1.5 transition-all ${
               activeTool === 'move'
                 ? 'bg-cyan-600 text-white shadow-xs'
                 : 'text-slate-400 hover:text-white'
             }`}
-            title="Move Tool (V)"
           >
             <Move className="w-3.5 h-3.5" />
             <span>Move</span>
@@ -1115,8 +1140,8 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
                             ? {
                                 ...l,
                                 x: Math.min(
-                                  doc.width - Math.min(40, l.width),
-                                  Math.max(Math.min(40, l.width) - l.width, parseInt(e.target.value) || 0)
+                                  Math.max(0, doc.width - l.width),
+                                  Math.max(Math.min(0, doc.width - l.width), parseInt(e.target.value) || 0)
                                 )
                               }
                             : l
@@ -1140,8 +1165,8 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
                             ? {
                                 ...l,
                                 y: Math.min(
-                                  doc.height - Math.min(40, l.height),
-                                  Math.max(Math.min(40, l.height) - l.height, parseInt(e.target.value) || 0)
+                                  Math.max(0, doc.height - l.height),
+                                  Math.max(Math.min(0, doc.height - l.height), parseInt(e.target.value) || 0)
                                 )
                               }
                             : l
