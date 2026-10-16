@@ -125,6 +125,7 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
   const [exportQuality, setExportQuality] = useState<number>(85);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isOptimizing, setIsOptimizing] = useState<boolean>(false);
+  const [imageLoadError, setImageLoadError] = useState<string | null>(null);
   const [optimizeResult, setOptimizeResult] = useState<{
     originalSize: string;
     optimizedSize: string;
@@ -285,31 +286,40 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
   // LAYER MANAGEMENT (Add Image, Delete, Duplicate, Reorder, Visibility)
   // ---------------------------------------------------------------------------
   const handleAddImageFile = (file: File) => {
+    setImageLoadError(null);
+    if (!file.type.startsWith('image/')) {
+      setImageLoadError('Choose a supported image file.');
+      return;
+    }
+
+    // Capture the target document at selection time so a slow image load cannot
+    // add the layer to a different tab after the user switches canvases.
+    const targetDocId = activeDoc.id;
+    const targetWidth = activeDoc.width;
+    const targetHeight = activeDoc.height;
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      const origW = img.naturalWidth || 400;
-      const origH = img.naturalHeight || 300;
-
-      // Center image on canvas, scaling down if larger than canvas
-      let initW = origW;
-      let initH = origH;
-      if (initW > activeDoc.width * 0.9 || initH > activeDoc.height * 0.9) {
-        const fitScale = Math.min(
-          (activeDoc.width * 0.8) / initW,
-          (activeDoc.height * 0.8) / initH
-        );
-        initW = Math.round(initW * fitScale);
-        initH = Math.round(initH * fitScale);
+      const origW = img.naturalWidth;
+      const origH = img.naturalHeight;
+      if (!origW || !origH) {
+        URL.revokeObjectURL(url);
+        setImageLoadError('This image could not be read. Try another file.');
+        return;
       }
 
+      // Keep the full image visible and centered, regardless of its aspect ratio.
+      const fitScale = Math.min(1, (targetWidth * 0.8) / origW, (targetHeight * 0.8) / origH);
+      const initW = Math.max(1, Math.round(origW * fitScale));
+      const initH = Math.max(1, Math.round(origH * fitScale));
+
       const layer: CanvasLayer = {
-        id: `layer-${Date.now()}`,
+        id: `layer-${typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`}`,
         name: file.name.replace(/\.[^/.]+$/, ''),
         src: url,
         imgElement: img,
-        x: Math.round((activeDoc.width - initW) / 2),
-        y: Math.round((activeDoc.height - initH) / 2),
+        x: Math.round((targetWidth - initW) / 2),
+        y: Math.round((targetHeight - initH) / 2),
         width: initW,
         height: initH,
         originalWidth: origW,
@@ -319,11 +329,13 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
         locked: false
       };
 
-      updateActiveDoc((doc) => ({
-        ...doc,
-        layers: [...doc.layers, layer],
-        activeLayerId: layer.id
-      }));
+      setDocuments((prev) => prev.map((doc) => doc.id === targetDocId
+        ? { ...doc, layers: [...doc.layers, layer], activeLayerId: layer.id }
+        : doc));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      setImageLoadError('This image could not be loaded. Try a different image format.');
     };
     img.src = url;
   };
@@ -480,8 +492,18 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
       let nextH = initH;
 
       if (h === 'move') {
-        nextX = Math.round(initX + dx);
-        nextY = Math.round(initY + dy);
+        // Keep a small part of the layer on the artboard so its selection and
+        // handles remain reachable if it is dragged past an edge.
+        const minVisibleX = Math.min(40, initW);
+        const minVisibleY = Math.min(40, initH);
+        nextX = Math.min(
+          activeDoc.width - minVisibleX,
+          Math.max(minVisibleX - initW, Math.round(initX + dx))
+        );
+        nextY = Math.min(
+          activeDoc.height - minVisibleY,
+          Math.max(minVisibleY - initH, Math.round(initY + dy))
+        );
       } else {
         switch (h) {
           case 'se': // Bottom-right
@@ -816,9 +838,10 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
             accept="image/*"
             className="hidden"
             onChange={(e) => {
-              if (e.target.files && e.target.files[0]) {
-                handleAddImageFile(e.target.files[0]);
-              }
+              const file = e.target.files?.[0];
+              // Clear the input so choosing the same file again triggers change.
+              e.target.value = '';
+              if (file) handleAddImageFile(file);
             }}
           />
 
@@ -830,6 +853,12 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
             <Plus className="w-3.5 h-3.5" />
             <span>Add Image Layer</span>
           </button>
+
+          {imageLoadError && (
+            <span role="alert" className="max-w-48 text-[11px] text-rose-300">
+              {imageLoadError}
+            </span>
+          )}
 
           {/* Zoom controls */}
           <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 text-xs">
@@ -904,6 +933,10 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
             {activeDoc.layers.map((layer) => {
               if (!layer.visible) return null;
               const isSelected = activeDoc.activeLayerId === layer.id;
+              const imageClipTop = Math.max(0, -layer.y);
+              const imageClipRight = Math.max(0, layer.x + layer.width - activeDoc.width);
+              const imageClipBottom = Math.max(0, layer.y + layer.height - activeDoc.height);
+              const imageClipLeft = Math.max(0, -layer.x);
 
               return (
                 <div
@@ -928,6 +961,9 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
                     src={layer.src}
                     alt={layer.name}
                     className="w-full h-full object-contain pointer-events-none"
+                    style={{
+                      clipPath: `inset(${imageClipTop}px ${imageClipRight}px ${imageClipBottom}px ${imageClipLeft}px)`
+                    }}
                     draggable={false}
                   />
 
@@ -1114,7 +1150,15 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
                       updateActiveDoc((doc) => ({
                         ...doc,
                         layers: doc.layers.map((l) =>
-                          l.id === activeLayer.id ? { ...l, x: parseInt(e.target.value) || 0 } : l
+                          l.id === activeLayer.id
+                            ? {
+                                ...l,
+                                x: Math.min(
+                                  doc.width - Math.min(40, l.width),
+                                  Math.max(Math.min(40, l.width) - l.width, parseInt(e.target.value) || 0)
+                                )
+                              }
+                            : l
                         )
                       }))
                     }
@@ -1131,7 +1175,15 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ backendUrl }) => {
                       updateActiveDoc((doc) => ({
                         ...doc,
                         layers: doc.layers.map((l) =>
-                          l.id === activeLayer.id ? { ...l, y: parseInt(e.target.value) || 0 } : l
+                          l.id === activeLayer.id
+                            ? {
+                                ...l,
+                                y: Math.min(
+                                  doc.height - Math.min(40, l.height),
+                                  Math.max(Math.min(40, l.height) - l.height, parseInt(e.target.value) || 0)
+                                )
+                              }
+                            : l
                         )
                       }))
                     }
