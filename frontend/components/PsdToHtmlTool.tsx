@@ -108,6 +108,9 @@ type OutputMode = 'css' | 'tailwind' | 'both';
 export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initialFile }) => {
   const [data, setData] = useState<ConversionResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isAiEnhancing, setIsAiEnhancing] = useState<boolean>(false);
+  const [aiEnhanced, setAiEnhanced] = useState<boolean>(false);
+  const [aiEnhancementNote, setAiEnhancementNote] = useState<string | null>(null);
   const [loadingStep, setLoadingStep] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [exportNotice, setExportNotice] = useState<string | null>(null);
@@ -142,6 +145,8 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initia
 
   const loadSampleData = async () => {
     setIsLoading(true);
+    setAiEnhanced(false);
+    setAiEnhancementNote(null);
     setError(null);
     setLoadingStep('Opening Marine Construction Reference PSD (1920 × 9934px)...');
 
@@ -188,6 +193,8 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initia
     }
 
     setIsLoading(true);
+    setAiEnhanced(false);
+    setAiEnhancementNote(null);
     setError(null);
     setLoadingStep(`Analyzing PSD structure and layers in ${file.name}...`);
 
@@ -234,6 +241,82 @@ export const PsdToHtmlTool: React.FC<PsdToHtmlToolProps> = ({ backendUrl, initia
 
     setIsLoading(false);
     setLoadingStep('');
+  };
+
+  const handleAiEnhance = async () => {
+    if (!data || isAiEnhancing) return;
+    setIsAiEnhancing(true);
+    setError(null);
+    try {
+      const previewUrl = data.composite_url || data.assets.find((asset) => asset.url.startsWith('data:image/'))?.url;
+      if (!previewUrl) throw new Error('This PSD conversion has no composite preview for AI to analyze.');
+      let imageData: string;
+      let imageMimeType = 'image/jpeg';
+      let previewBlobForAi: Blob;
+      if (previewUrl.startsWith('data:')) {
+        const previewResponse = await fetch(previewUrl);
+        previewBlobForAi = await previewResponse.blob();
+      } else {
+        const url = previewUrl.startsWith('/') ? `${backendUrl}${previewUrl}` : previewUrl;
+        const previewResponse = await fetch(url);
+        if (!previewResponse.ok) throw new Error('Could not load the PSD preview image.');
+        previewBlobForAi = await previewResponse.blob();
+      }
+      const previewBitmap = await createImageBitmap(previewBlobForAi);
+      const previewScale = Math.min(1, 4096 / Math.max(previewBitmap.width, previewBitmap.height));
+      const previewCanvas = document.createElement('canvas');
+      previewCanvas.width = Math.max(1, Math.round(previewBitmap.width * previewScale));
+      previewCanvas.height = Math.max(1, Math.round(previewBitmap.height * previewScale));
+      previewCanvas.getContext('2d')?.drawImage(previewBitmap, 0, 0, previewCanvas.width, previewCanvas.height);
+      previewBitmap.close();
+      const aiPreviewBlob = await new Promise<Blob>((resolve, reject) => previewCanvas.toBlob(
+        (blob) => blob ? resolve(blob) : reject(new Error('Could not prepare the PSD preview for AI.')),
+        'image/jpeg', 0.78
+      ));
+      imageMimeType = 'image/jpeg';
+      imageData = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(',', 2)[1] || '');
+        reader.onerror = () => reject(new Error('Could not read the PSD preview image.'));
+        reader.readAsDataURL(aiPreviewBlob);
+      });
+
+      const response = await fetch(`${backendUrl}/api/tools/psd-to-html/ai-enhance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          psd_name: data.psd_name,
+          dimensions: data.dimensions,
+          image_data: imageData,
+          image_mime_type: imageMimeType,
+          measured_layers: data.measured_layers || [],
+          sections: data.sections,
+          assets: data.assets.map(({ name, path, width, height }) => ({ name, path, width, height })),
+          html_code: data.html_code,
+          css_code: data.css_code,
+          tailwind_code: data.tailwind_code
+        })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.detail || 'Gemini could not improve this PSD conversion.');
+      setData((current) => current ? {
+        ...current,
+        html_code: result.html_code,
+        html_code_min: minifyHtml(result.html_code),
+        css_code: result.css_code,
+        css_code_min: minifyCss(result.css_code),
+        tailwind_code: result.tailwind_code,
+        tailwind_code_min: minifyHtml(result.tailwind_code)
+      } : current);
+      setAiEnhanced(true);
+      setAiEnhancementNote(result.enhancement_note || `Enhanced with ${result.model || 'Gemini'}.`);
+      setIsMinified(false);
+      setActiveTab('preview');
+    } catch (err: any) {
+      setError(err.message || 'AI enhancement failed.');
+    } finally {
+      setIsAiEnhancing(false);
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -517,6 +600,19 @@ npx serve .
             <span>Load Reference PSD</span>
           </button>
 
+          {data && (
+            <button
+              type="button"
+              onClick={handleAiEnhance}
+              disabled={isAiEnhancing || isLoading}
+              className="px-3 py-1.5 bg-violet-700 hover:bg-violet-600 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 border border-violet-500/70 disabled:opacity-60"
+              title="Use Gemini on the backend to improve the responsive HTML and CSS while preserving PSD content and assets"
+            >
+              {isAiEnhancing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+              <span>{isAiEnhancing ? 'Gemini is improving…' : aiEnhanced ? 'Improve again with Gemini' : 'Improve with Gemini AI'}</span>
+            </button>
+          )}
+
           {/* Reference Site Preview Link */}
           <a
             href="/demo-marine-construction/index.html"
@@ -580,6 +676,13 @@ npx serve .
           >
             ✕
           </button>
+        </div>
+      )}
+
+      {aiEnhancementNote && (
+        <div className="w-full bg-violet-950/80 border-b border-violet-800 px-4 py-2 text-xs text-violet-100">
+          <span className="font-semibold">Gemini enhancement applied.</span> {aiEnhancementNote}
+          <span className="ml-2 text-violet-300">Review the live preview before exporting.</span>
         </div>
       )}
 

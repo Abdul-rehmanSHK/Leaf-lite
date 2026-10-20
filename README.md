@@ -138,6 +138,17 @@ npm run dev
 
 ---
 
+### Gemini AI for PSD to HTML
+
+The PSD-to-HTML workspace can optionally send its preview and measured layer data to Gemini to produce a more semantic, responsive HTML/CSS layout. The original measured conversion remains available if you do not enable AI.
+
+1. Create a Gemini API key in Google AI Studio.
+2. Copy `.env.example` to `.env` in the project root and set `GEMINI_API_KEY`.
+3. Restart the backend (or run `docker-compose up -d --build` when using Docker).
+4. Open a PSD and select **Improve with Gemini AI**.
+
+The key stays in the backend environment and is never sent to the browser. `GEMINI_MODEL` defaults to `gemini-3.8-flash` and can be changed in `.env`. AI enhancement requires an internet connection and may incur Google API usage charges. Backend AI enhancement is limited to five requests per client IP every ten minutes.
+
 ### 4. Open in Browser
 Visit **[http://localhost:3000](http://localhost:3000)** to access the LeafLite Studio interface.
 

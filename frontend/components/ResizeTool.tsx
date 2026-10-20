@@ -33,6 +33,7 @@ import {
 
 interface ResizeToolProps {
   onUnsavedChangesChange?: (hasUnsavedChanges: boolean) => void;
+  onSaveAndLeaveRequest?: (handler: (() => Promise<boolean>) | null) => void;
 }
 
 const getDocumentContentSignature = (doc: CanvasDocument) => JSON.stringify({
@@ -95,7 +96,7 @@ const PRESET_CANVASES = [
   { name: 'Standard Photo (1024 × 768)', w: 1024, h: 768 }
 ];
 
-export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }) => {
+export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange, onSaveAndLeaveRequest }) => {
   // Multi-Document state
   const [documents, setDocuments] = useState<CanvasDocument[]>([
     {
@@ -128,6 +129,8 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
   const [activeTool, setActiveTool] = useState<'move' | 'transform' | 'pan' | 'crop'>('move');
   const [isShiftPressed, setIsShiftPressed] = useState<boolean>(false);
   const [forceLockAspect, setForceLockAspect] = useState<boolean>(true);
+  const [cropRect, setCropRect] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  const cropStartRef = useRef<{ x: number; y: number } | null>(null);
 
   // New Canvas Modal (Ctrl+N)
   const [showNewCanvasModal, setShowNewCanvasModal] = useState<boolean>(false);
@@ -193,6 +196,7 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
       // Ctrl+T / Cmd+T: Free Transform Mode
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 't') {
         e.preventDefault();
+        e.stopPropagation();
         setActiveTool((prev) => (prev === 'transform' ? 'move' : 'transform'));
       }
       // Shift Key: Aspect Ratio Constraint
@@ -246,13 +250,23 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, true);
     window.addEventListener('keyup', handleKeyUp);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown, true);
       window.removeEventListener('keyup', handleKeyUp);
     };
   }, [activeLayer, activeDoc]);
+
+  useEffect(() => {
+    if (!onSaveAndLeaveRequest) return;
+    const saveAndLeave = async () => {
+      if (!hasUnsavedChanges) return true;
+      return handleExportDocument();
+    };
+    onSaveAndLeaveRequest(saveAndLeave);
+    return () => onSaveAndLeaveRequest(null);
+  }, [onSaveAndLeaveRequest, hasUnsavedChanges, activeDoc, exportFormat, exportQuality]);
 
   // Helper to update active document
   const updateActiveDoc = (updater: (doc: CanvasDocument) => CanvasDocument) => {
@@ -597,6 +611,14 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
             nextY = initY + (initH - nextH);
             break;
         }
+        // A locked side handle grows around the opposite edge's midpoint,
+        // keeping the artwork centered on the unchanged axis.
+        if (isConstrained && (h === 'e' || h === 'w')) {
+          nextY = Math.round(initY - (nextH - initH) / 2);
+        }
+        if (isConstrained && (h === 'n' || h === 's')) {
+          nextX = Math.round(initX - (nextW - initW) / 2);
+        }
       }
 
       updateActiveDoc((doc) => ({
@@ -623,6 +645,53 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
 
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', handlePointerUp);
+  };
+
+  const getCanvasPoint = (clientX: number, clientY: number) => {
+    const bounds = canvasContainerRef.current?.querySelector('[data-artboard="true"]')?.getBoundingClientRect();
+    if (!bounds) return { x: 0, y: 0 };
+    return {
+      x: Math.max(0, Math.min(activeDoc.width, (clientX - bounds.left) / activeDoc.zoom)),
+      y: Math.max(0, Math.min(activeDoc.height, (clientY - bounds.top) / activeDoc.zoom))
+    };
+  };
+
+  const handleCropPointerDown = (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const point = getCanvasPoint(e.clientX, e.clientY);
+    cropStartRef.current = point;
+    setCropRect({ x: point.x, y: point.y, width: 0, height: 0 });
+    const move = (event: PointerEvent) => {
+      if (!cropStartRef.current) return;
+      const next = getCanvasPoint(event.clientX, event.clientY);
+      const start = cropStartRef.current;
+      setCropRect({
+        x: Math.min(start.x, next.x), y: Math.min(start.y, next.y),
+        width: Math.abs(next.x - start.x), height: Math.abs(next.y - start.y)
+      });
+    };
+    const up = () => {
+      cropStartRef.current = null;
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  const applyCrop = () => {
+    if (!cropRect || cropRect.width < 1 || cropRect.height < 1) return;
+    const crop = {
+      x: Math.round(cropRect.x), y: Math.round(cropRect.y),
+      width: Math.max(1, Math.round(cropRect.width)), height: Math.max(1, Math.round(cropRect.height))
+    };
+    updateActiveDoc((doc) => ({
+      ...doc, width: crop.width, height: crop.height,
+      layers: doc.layers.map((layer) => ({ ...layer, x: layer.x - crop.x, y: layer.y - crop.y }))
+    }));
+    setCropRect(null);
+    setActiveTool('move');
   };
 
   // ---------------------------------------------------------------------------
@@ -674,7 +743,7 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
   };
 
   // Save the composed canvas directly to the user's computer.
-  const handleExportDocument = async () => {
+  const handleExportDocument = async (): Promise<boolean> => {
     setIsExporting(true);
 
     try {
@@ -698,8 +767,10 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
       a.click();
       URL.revokeObjectURL(url);
       markActiveDocumentSaved();
+      return true;
     } catch (err: any) {
       alert(`Export error: ${err.message}`);
+      return false;
     } finally {
       setIsExporting(false);
     }
@@ -763,10 +834,10 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
                 ? 'bg-emerald-950/80 text-emerald-400 border-emerald-700'
                 : 'bg-slate-900 text-slate-400 border-slate-800'
             }`}
-            title="Aspect ratio locking is engaged (hold Shift to toggle)"
+            title="Aspect ratio is locked. Hold Shift during a resize to temporarily lock it."
           >
             <Lock className="w-3 h-3" />
-            <span>Shift: {isShiftPressed || forceLockAspect ? 'Constrained' : 'Freeform'}</span>
+            <span>Ratio: {isShiftPressed || forceLockAspect ? 'Locked' : 'Free'}</span>
           </div>
         </div>
       </div>
@@ -804,6 +875,16 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
           >
             <Move className="w-3.5 h-3.5" />
             <span>Move</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => { setActiveTool('crop'); setCropRect(null); }}
+            className={`px-3 py-1.5 rounded-md font-bold flex items-center gap-1.5 transition-all ${activeTool === 'crop' ? 'bg-cyan-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'}`}
+            title="Drag on the canvas to choose a crop area"
+          >
+            <Crop className="w-3.5 h-3.5" />
+            <span>Crop</span>
           </button>
 
           <button
@@ -909,6 +990,7 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
         >
           {/* Canvas Document Frame */}
           <div
+            data-artboard="true"
             className={`relative transition-transform duration-75 shadow-2xl border border-slate-700/80 rounded-sm ${
               activeDoc.backgroundColor === 'transparent' ? 'checkerboard-bg' : ''
             }`}
@@ -931,7 +1013,7 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
                       e.stopPropagation();
                       updateActiveDoc((doc) => ({ ...doc, activeLayerId: layer.id }));
                     }}
-                    onPointerDown={(e) => handlePointerDown(e, 'move', layer)}
+                    onPointerDown={(e) => activeTool !== 'crop' && handlePointerDown(e, 'move', layer)}
                     className="absolute group cursor-move select-none"
                     style={{
                       left: layer.x,
@@ -952,6 +1034,21 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
                 );
               })}
             </div>
+
+            {activeTool === 'crop' && (
+              <div className="absolute inset-0 z-50 cursor-crosshair overflow-hidden" onPointerDown={handleCropPointerDown}>
+                {cropRect && cropRect.width > 0 && cropRect.height > 0 && (
+                  <div
+                    className="absolute border-2 border-white shadow-[0_0_0_9999px_rgba(2,6,23,0.62)] pointer-events-none"
+                    style={{ left: cropRect.x, top: cropRect.y, width: cropRect.width, height: cropRect.height }}
+                  >
+                    <span className="absolute -top-7 left-0 whitespace-nowrap rounded bg-slate-950/90 px-2 py-1 text-[10px] font-mono text-white">
+                      {Math.round(cropRect.width)} × {Math.round(cropRect.height)} px
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Keep transform controls above the artboard clip. */}
             {activeLayer && activeLayer.visible && activeTool === 'transform' && !activeLayer.locked && (
@@ -1006,6 +1103,14 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
             )}
 
           </div>
+
+          {activeTool === 'crop' && (
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/95 p-2 shadow-xl">
+              <span className="px-2 text-xs text-slate-300">Drag to select crop area</span>
+              <button type="button" disabled={!cropRect || cropRect.width < 1 || cropRect.height < 1} onClick={applyCrop} className="rounded-lg bg-cyan-600 px-3 py-1.5 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-40">Apply crop</button>
+              <button type="button" onClick={() => { setCropRect(null); setActiveTool('move'); }} className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-200">Cancel</button>
+            </div>
+          )}
 
           {/* Bottom Viewport Status Bar */}
           <div className="absolute bottom-3 left-4 bg-slate-900/90 border border-slate-800 text-[11px] text-slate-400 px-3 py-1.5 rounded-lg flex items-center gap-3 backdrop-blur-xs">
@@ -1084,7 +1189,7 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
                     value={activeLayer.width}
                     onChange={(e) => {
                       const val = Math.max(10, parseInt(e.target.value) || 10);
-                      const aspect = activeLayer.originalWidth / activeLayer.originalHeight;
+                      const aspect = activeLayer.width / activeLayer.height;
                       updateActiveDoc((doc) => ({
                         ...doc,
                         layers: doc.layers.map((l) =>
@@ -1109,7 +1214,7 @@ export const ResizeTool: React.FC<ResizeToolProps> = ({ onUnsavedChangesChange }
                     value={activeLayer.height}
                     onChange={(e) => {
                       const val = Math.max(10, parseInt(e.target.value) || 10);
-                      const aspect = activeLayer.originalWidth / activeLayer.originalHeight;
+                      const aspect = activeLayer.width / activeLayer.height;
                       updateActiveDoc((doc) => ({
                         ...doc,
                         layers: doc.layers.map((l) =>

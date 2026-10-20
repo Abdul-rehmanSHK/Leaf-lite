@@ -69,6 +69,8 @@ export default function LeafLiteStudioPage() {
   const [activeTab, setActiveTab] = useState<MainTab>('compressor');
   const [previousMainTab, setPreviousMainTab] = useState<MainTab>('compressor');
   const [hasUnsavedResizeChanges, setHasUnsavedResizeChanges] = useState(false);
+  const [resizeSaveHandler, setResizeSaveHandler] = useState<(() => Promise<boolean>) | null>(null);
+  const [pendingResizeTab, setPendingResizeTab] = useState<MainTab | null>(null);
   const [selectedExtraTool, setSelectedExtraTool] = useState<ExtraTool>('kb_reducer');
   const [sharedPsdFile, setSharedPsdFile] = useState<File | null>(null);
 
@@ -467,15 +469,11 @@ export default function LeafLiteStudioPage() {
     }
   };
 
-  const confirmLeaveResize = () => {
-    if (activeTab !== 'resize' || !hasUnsavedResizeChanges) return true;
-    const shouldLeave = window.confirm('Your canvas has unsaved changes. Export it before leaving, or leave and discard those changes?');
-    if (shouldLeave) setHasUnsavedResizeChanges(false);
-    return shouldLeave;
-  };
-
   const switchMainTab = (tab: MainTab) => {
-    if (tab !== activeTab && !confirmLeaveResize()) return;
+    if (tab !== activeTab && activeTab === 'resize' && hasUnsavedResizeChanges) {
+      setPendingResizeTab(tab);
+      return;
+    }
     setActiveTab(tab);
     if (tab !== 'more_tools') {
       setPreviousMainTab(tab);
@@ -484,7 +482,11 @@ export default function LeafLiteStudioPage() {
   };
 
   const toggleMoreTools = () => {
-    if (!confirmLeaveResize()) return;
+    const destination = activeTab === 'more_tools' ? previousMainTab : 'more_tools';
+    if (activeTab === 'resize' && hasUnsavedResizeChanges) {
+      setPendingResizeTab(destination);
+      return;
+    }
     if (activeTab === 'more_tools') {
       setActiveTab(previousMainTab);
     } else {
@@ -496,6 +498,14 @@ export default function LeafLiteStudioPage() {
 
   const closeMoreTools = () => {
     setActiveTab(previousMainTab);
+    setErrorMessage(null);
+  };
+
+  const finishResizeTabChange = (tab: MainTab) => {
+    setHasUnsavedResizeChanges(false);
+    setPendingResizeTab(null);
+    setActiveTab(tab);
+    if (tab !== 'more_tools') setPreviousMainTab(tab);
     setErrorMessage(null);
   };
 
@@ -647,6 +657,7 @@ export default function LeafLiteStudioPage() {
             {activeTab === 'resize' && (
               <ResizeTool
                 onUnsavedChangesChange={setHasUnsavedResizeChanges}
+                onSaveAndLeaveRequest={setResizeSaveHandler}
               />
             )}
             {activeTab === 'psd_studio' && (
@@ -1158,6 +1169,23 @@ export default function LeafLiteStudioPage() {
           </div>
         </div>
       </main>
+      )}
+
+      {pendingResizeTab && (
+        <div role="dialog" aria-modal="true" aria-labelledby="resize-leave-title" className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl">
+            <h2 id="resize-leave-title" className="text-lg font-bold">Save your canvas before leaving?</h2>
+            <p className="mt-2 text-sm text-slate-600">Export your current canvas, discard your changes, or stay in the resizer.</p>
+            <div className="mt-6 flex flex-wrap justify-end gap-2">
+              <button type="button" onClick={() => setPendingResizeTab(null)} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Stay here</button>
+              <button type="button" onClick={() => finishResizeTabChange(pendingResizeTab)} className="rounded-lg px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50">Leave without saving</button>
+              <button type="button" disabled={!resizeSaveHandler} onClick={async () => {
+                const saved = await resizeSaveHandler?.();
+                if (saved && pendingResizeTab) finishResizeTabChange(pendingResizeTab);
+              }} className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">Export & leave</button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ========================================================================= */}

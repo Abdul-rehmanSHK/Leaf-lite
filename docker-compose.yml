@@ -21,6 +21,8 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - LEAFLITE_STORAGE_DIR=/tmp/leaflite_uploads
       - ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.8-flash}
     volumes:
       - shared_uploads:/tmp/leaflite_uploads
     depends_on:
