@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import JSZip from 'jszip';
 import {
   Upload,
@@ -29,14 +30,20 @@ import {
   X
 } from 'lucide-react';
 
-import { ResizeTool } from '../components/ResizeTool';
-import { PsdTool } from '../components/PsdTool';
-import { PsdToHtmlTool } from '../components/PsdToHtmlTool';
-import { KbReducerTool } from '../components/KbReducerTool';
-import { PdfMergerTool } from '../components/PdfMergerTool';
-import { QualityCheckerTool } from '../components/QualityCheckerTool';
-import { DimensionsCheckerTool } from '../components/DimensionsCheckerTool';
-import { ExifTool } from '../components/ExifTool';
+const ToolLoading = () => (
+  <div className="flex min-h-48 flex-1 items-center justify-center text-sm font-medium text-slate-500" role="status">
+    Loading tool…
+  </div>
+);
+
+const ResizeTool = dynamic(() => import('../components/ResizeTool').then((module) => module.ResizeTool), { loading: ToolLoading });
+const PsdTool = dynamic(() => import('../components/PsdTool').then((module) => module.PsdTool), { loading: ToolLoading });
+const PsdToHtmlTool = dynamic(() => import('../components/PsdToHtmlTool').then((module) => module.PsdToHtmlTool), { loading: ToolLoading });
+const KbReducerTool = dynamic(() => import('../components/KbReducerTool').then((module) => module.KbReducerTool), { loading: ToolLoading });
+const PdfMergerTool = dynamic(() => import('../components/PdfMergerTool').then((module) => module.PdfMergerTool), { loading: ToolLoading });
+const QualityCheckerTool = dynamic(() => import('../components/QualityCheckerTool').then((module) => module.QualityCheckerTool), { loading: ToolLoading });
+const DimensionsCheckerTool = dynamic(() => import('../components/DimensionsCheckerTool').then((module) => module.DimensionsCheckerTool), { loading: ToolLoading });
+const ExifTool = dynamic(() => import('../components/ExifTool').then((module) => module.ExifTool), { loading: ToolLoading });
 
 type MainTab = 'compressor' | 'converter' | 'resize' | 'psd_studio' | 'psd_to_html' | 'more_tools';
 type ExtraTool = 'kb_reducer' | 'pdf_merger' | 'quality_checker' | 'dimensions_checker' | 'exif_tool';

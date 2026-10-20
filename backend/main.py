@@ -1028,13 +1028,7 @@ async def api_psd_to_html_asset(job_id: str, filename: str):
         if alt_root_path.exists():
             asset_path = alt_root_path
         else:
-            # Fallback check test_out directory if running in local test mode
-            project_root = Path(__file__).resolve().parent.parent
-            test_path = project_root / "backend" / "test_out" / "images" / filename
-            if test_path.exists():
-                asset_path = test_path
-            else:
-                raise HTTPException(status_code=404, detail="Asset not found")
+            raise HTTPException(status_code=404, detail="Asset not found")
 
     ext = asset_path.suffix.lower()
     media_type = "image/webp" if ext == ".webp" else ("image/png" if ext == ".png" else "image/jpeg")

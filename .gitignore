@@ -42,6 +42,8 @@ ENV/
 
 # Temporary uploads & cache
 leaflite_uploads/
+/backend/b/
+/backend/test_out/
 chunks/
 tmp/
 temp/
